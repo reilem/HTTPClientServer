@@ -5,31 +5,26 @@ import java.net.*;
 
 public class HTTPClient {
 
-    private final int port;
+    private final Socket httpSocket;
 
-    HTTPClient(int port) {
-        this.port = port;
+    HTTPClient(int port, String uriString) throws IOException {
+        // Create socket based on host name provided by uri
+        this.httpSocket = new Socket(InetAddress.getByName(HTTPUtil.parseHostName(uriString)), port);
     }
 
-    public String executeRequest(String method, String requestURI, String protocol) {
-        String hostName = HTTPUtil.parseHostName(requestURI);
-
+    public String executeRequest(String method, String requestURI, String protocol, String extraHeaders) {
         System.out.println("Executing request...");
         StringBuilder output = new StringBuilder();
         try {
-            // Define address based on hostname
-            InetAddress address = InetAddress.getByName(hostName);
-            // Create socket
-            Socket httpSocket = new Socket(address, this.port);
             // Open request & response streams
             BufferedWriter bufferedRequest = new BufferedWriter(new OutputStreamWriter(httpSocket.getOutputStream()));
             BufferedReader bufferedResponse = new BufferedReader(new InputStreamReader(httpSocket.getInputStream()));
 
             // Perform request
+            String hostName = HTTPUtil.parseHostName(requestURI);
             bufferedRequest.write(getRequestLine(method, requestURI, protocol));
-            if (protocol.equals("HTTP/1.1")) {
-                bufferedRequest.write(getHostHeader(hostName));
-            }
+            if (protocol.equals("HTTP/1.1")) bufferedRequest.write(getHostHeader(hostName));
+            if (extraHeaders != null) bufferedRequest.write(extraHeaders);
             bufferedRequest.write(HTTPUtil.CRLF);
             bufferedRequest.flush();
             System.out.println("Request sent...");
@@ -46,11 +41,9 @@ public class HTTPClient {
                 if (!bufferedResponse.ready()) break;
             }
             System.out.println("Response received...");
-            bufferedRequest.close();
-            bufferedResponse.close();
-            httpSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            if (e.getMessage().equals("Connection reset")) return "Connection closed by foreign host.";
+            else e.printStackTrace();
         }
         return output.toString();
     }

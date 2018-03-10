@@ -39,29 +39,34 @@ public class HTTPClientHandler implements Runnable {
             // Open a response and request reader
             BufferedReader bufferedRequest = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
             BufferedWriter bufferedResponse = new BufferedWriter(new OutputStreamWriter(this.client.getOutputStream()));
-
-            // Read the request
-            StringBuilder request = new StringBuilder();
-            String line;
-            while ((line = bufferedRequest.readLine()) != null) {
-                request.append(line);
-                request.append(HTTPUtil.CRLF);
-                // In some cases the response does not end in a null line but an empty string. Testing on an empty
-                // string will cause responses containing empty lines to not be read till completion. As a compromise
-                // a check is done if the buffer is still ready each loop. This test cannot be done in the main loop
-                // since the buffer will not be ready until a response has been received.
-                if (!bufferedRequest.ready()) break;
+            while (true) {
+                // Read the request
+                StringBuilder request = new StringBuilder();
+                String line;
+                while ((line = bufferedRequest.readLine()) != null) {
+                    request.append(line);
+                    request.append(HTTPUtil.CRLF);
+                    // In some cases the response does not end in a null line but an empty string. Testing on an empty
+                    // string will cause responses containing empty lines to not be read till completion. As a compromise
+                    // a check is done if the buffer is still ready each loop. This test cannot be done in the main loop
+                    // since the buffer will not be ready until a response has been received.
+                    if (!bufferedRequest.ready()) break;
+                }
+                String[] requestData = request.toString().split(HTTPUtil.CRLF);
+                boolean keepAlive = this.handleRequest(requestData, bufferedResponse);
+                if (!keepAlive) {
+                    bufferedRequest.close();
+                    bufferedResponse.close();
+                    client.close();
+                    break;
+                }
             }
-            String[] requestData = request.toString().split(HTTPUtil.CRLF);
-            this.handleRequest(requestData, bufferedResponse);
-            bufferedRequest.close();
-            bufferedResponse.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void handleRequest(String[] httpRequest, BufferedWriter bufferedResponse) throws IOException {
+    private boolean handleRequest(String[] httpRequest, BufferedWriter bufferedResponse) throws IOException {
         System.out.println(this.threadName + " handling request: " + Arrays.toString(httpRequest));
         // Get the main request line
         String requestLine = httpRequest[0];
@@ -114,7 +119,7 @@ public class HTTPClientHandler implements Runnable {
         if (badRequest || (isHttp1_1 && host == null)) {
             bufferedResponse.write(getResponseHeader(400, null, null));
             bufferedResponse.flush();
-            return;
+            return keepAlive;
         }
 
         // Perform requested service
@@ -137,6 +142,7 @@ public class HTTPClientHandler implements Runnable {
             bufferedResponse.write(getResponseHeader(404, null, null));
         }
         bufferedResponse.flush();
+        return keepAlive;
     }
 
     private String getResponseHeader(int statusCode, String contentType, Long contentLength) {
