@@ -70,7 +70,7 @@ public class HTTPClientHandler implements Runnable {
         // Get the request method
         String method = requestComponents[0];
         // Get the requested path
-        String path = requestComponents[1];
+        String path = HTTPUtil.parseParams(requestComponents[1]);
         // If path is a single forward slash set it to the index
         if (path.equals("/")) path = "/index.html";
         // Get the protocol

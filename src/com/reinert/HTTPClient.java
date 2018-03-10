@@ -12,7 +12,7 @@ public class HTTPClient {
     }
 
     public String executeRequest(String method, String requestURI, String protocol) {
-        String hostName = this.parseHostName(requestURI);
+        String hostName = HTTPUtil.parseHostName(requestURI);
 
         System.out.println("Executing request...");
         StringBuilder output = new StringBuilder();
@@ -57,7 +57,7 @@ public class HTTPClient {
 
     private String getRequestLine(String method, String uri, String protocol) {
         String path;
-        if (protocol.equals("HTTP/1.1")) path = parseParams(uri);
+        if (protocol.equals("HTTP/1.1")) path = HTTPUtil.parseParams(uri);
         else path = uri;
         return (method + " " + path + " " + protocol + HTTPUtil.CRLF);
     }
@@ -65,20 +65,5 @@ public class HTTPClient {
     private String getHostHeader(String hostName) {
         return  ("Host: " + hostName + HTTPUtil.CRLF);
     }
-    private String parseHostName(String url) {
-        int i = url.lastIndexOf('/');
-        if (i != -1) {
-            String host = url.substring(0, i);
-            if (host.startsWith("https://")) return host.substring(8);
-            if (host.startsWith("http://")) return host.substring(7);
-            return host;
-        }
-        return url;
-    }
 
-    private String parseParams(String url) {
-        int i = url.lastIndexOf('/');
-        if (i != -1) return url.substring(i);
-        return "/";
-    }
 }
