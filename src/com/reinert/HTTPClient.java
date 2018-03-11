@@ -7,9 +7,15 @@ public class HTTPClient {
 
     private final Socket httpSocket;
 
-    HTTPClient(int port, String uriString) throws IOException {
+    HTTPClient(int port, String uriString) {
         // Create socket based on host name provided by uri
-        this.httpSocket = new Socket(InetAddress.getByName(HTTPUtil.parseHostName(uriString)), port);
+        Socket s = null;
+        try {
+            s = new Socket(InetAddress.getByName(HTTPUtil.parseHostName(uriString)), port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.httpSocket = s;
     }
 
     /**
@@ -22,6 +28,7 @@ public class HTTPClient {
      * @return              a string containing the HTTP response
      */
     public String executeRequest(String method, String requestURI, String protocol, String extraHeaders, String body) {
+        if (this.httpSocket == null) return "Invalid socket.";
         System.out.println("Executing request...");
         StringBuilder output = new StringBuilder();
         try {
@@ -59,6 +66,14 @@ public class HTTPClient {
             else e.printStackTrace();
         }
         return output.toString();
+    }
+
+    public void closeClient() {
+        try {
+            this.httpSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getRequestLine(String method, String uri, String protocol) {

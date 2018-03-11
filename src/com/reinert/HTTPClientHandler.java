@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class HTTPClientHandler implements Runnable {
     // Use DateTimeFormatter for better thread safety
@@ -56,13 +57,15 @@ public class HTTPClientHandler implements Runnable {
                     // since the buffer will not be ready until a response has been received.
                     if (!bufferedRequest.ready()) break;
                 }
-                String[] requestData = request.toString().split(HTTPUtil.CRLF);
-                this.handleRequest(requestData, bufferedResponse);
-                if (!this.keepAlive) {
-                    bufferedRequest.close();
-                    bufferedResponse.close();
-                    client.close();
-                    break;
+                if (!request.toString().isEmpty()) {
+                    String[] requestData = request.toString().split(HTTPUtil.CRLF);
+                    this.handleRequest(requestData, bufferedResponse);
+                    if (!this.keepAlive) {
+                        bufferedRequest.close();
+                        bufferedResponse.close();
+                        client.close();
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
@@ -142,6 +145,8 @@ public class HTTPClientHandler implements Runnable {
                     bufferedResponse.write(getResponseHeader(200, null, null));
                     break;
                 case "POST":
+                    this.appendFileDataToPath(path, body.toString());
+                    bufferedResponse.write(getResponseHeader(200, null, null));
                     break;
                 case "HEAD":
                     bufferedResponse.write(getResponseHeader(200, null, null));
@@ -160,7 +165,6 @@ public class HTTPClientHandler implements Runnable {
         else connection = "close";
 
         String contentHead = "";
-        System.out.println(contentType);
         if (contentType != null) {
             contentHead += ("Content-Type: " + contentType + HTTPUtil.CRLF);
         }
@@ -191,10 +195,18 @@ public class HTTPClientHandler implements Runnable {
         }
     }
 
+    private void appendFileDataToPath(String path, String body) throws IOException {
+        // Get the correct resource path
+        String resourcePath = getResourcePathFrom(path);
+        // Overwrite or create new file at path with body data
+        Files.write(Paths.get(resourcePath), Collections.singleton(body), StandardOpenOption.APPEND);
+    }
+
     private void overwriteFileDataToPath(String path, String body) throws IOException {
         // Get the correct resource path
         String resourcePath = getResourcePathFrom(path);
-        Files.write(Paths.get(resourcePath), body.getBytes(), StandardOpenOption.CREATE);
+        // Overwrite or create new file at path with body data
+        Files.write(Paths.get(resourcePath), body.getBytes());
     }
 
     private FileData readFileDataFromPath(String path) throws IOException {

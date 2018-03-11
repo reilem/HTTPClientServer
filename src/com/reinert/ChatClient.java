@@ -1,7 +1,5 @@
 package com.reinert;
 
-import java.io.IOException;
-
 public class ChatClient {
     public static void main(String[] args) {
         // Fetch input parameters
@@ -10,13 +8,9 @@ public class ChatClient {
         int port = Integer.parseInt(args[2]);
         String protocol = args[3];
 
-        try {
-            // Make a client
-            HTTPClient client = new HTTPClient(port, uri);
-            // Execute its request
-            System.out.println(client.executeRequest(method, uri, protocol, null, null));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // Make a client
+        HTTPClient client = new HTTPClient(port, uri);
+        // Execute its request
+        System.out.println(client.executeRequest(method, uri, protocol, null, null));
     }
 }
