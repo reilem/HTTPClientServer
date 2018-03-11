@@ -2,7 +2,6 @@ package com.reinert;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -42,27 +41,17 @@ public class HTTPClientHandler implements Runnable {
     private void handleClient() {
         try {
             // Open a response and request reader
-            BufferedReader bufferedRequest = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
-            BufferedWriter bufferedResponse = new BufferedWriter(new OutputStreamWriter(this.client.getOutputStream()));
+            BufferedReader requestReader = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
+            BufferedWriter responseWriter = new BufferedWriter(new OutputStreamWriter(this.client.getOutputStream()));
             while (true) {
                 // Read the request
-                StringBuilder request = new StringBuilder();
-                String line;
-                while ((line = bufferedRequest.readLine()) != null) {
-                    request.append(line);
-                    request.append(HTTPUtil.CRLF);
-                    // In some cases the response does not end in a null line but an empty string. Testing on an empty
-                    // string will cause responses containing empty lines to not be read till completion. As a compromise
-                    // a check is done if the buffer is still ready each loop. This test cannot be done in the main loop
-                    // since the buffer will not be ready until a response has been received.
-                    if (!bufferedRequest.ready()) break;
-                }
-                if (!request.toString().isEmpty()) {
-                    String[] requestData = request.toString().split(HTTPUtil.CRLF);
-                    this.handleRequest(requestData, bufferedResponse);
+                String request = this.readRequest(requestReader);
+                if (!request.isEmpty()) {
+                    String[] requestData = request.split(HTTPUtil.CRLF);
+                    this.handleRequest(requestData, requestReader, responseWriter);
                     if (!this.keepAlive) {
-                        bufferedRequest.close();
-                        bufferedResponse.close();
+                        requestReader.close();
+                        responseWriter.close();
                         client.close();
                         break;
                     }
@@ -73,7 +62,7 @@ public class HTTPClientHandler implements Runnable {
         }
     }
 
-    private void handleRequest(String[] httpRequest, BufferedWriter bufferedResponse) throws IOException {
+    private void handleRequest(String[] httpRequest, BufferedReader requestReader, Writer responseWriter) throws IOException {
         System.out.println(this.threadName + " handling request: " + Arrays.toString(httpRequest));
         // Split into components
         String[] requestComponents = httpRequest[0].split(" ");
@@ -98,64 +87,79 @@ public class HTTPClientHandler implements Runnable {
         this.keepAlive = isHttp1_1;
         ZonedDateTime lastModified = null;
         String host = null;
-        StringBuilder body = new StringBuilder();
         for (int i = 1; i < httpRequest.length; i++) {
             String requestLine = httpRequest[i];
             int index = requestLine.indexOf(':');
-            if (index != -1) {
-                String header = requestLine.substring(0, index+1);
-                String headerValue = requestLine.substring(index+2);
-                switch (header) {
-                    case "Host:":
-                        // Check that the header value only contains 1 word for host, else bad request
-                        if (headerValue.split(" ").length == 1) host = headerValue;
-                        else badRequest = true;
-                        break;
-                    case "Connection:":
-                        // Check if request provides a connection preference
-                        if (headerValue.equals("keep-alive")) keepAlive = true;
-                        else if (headerValue.equals("close")) keepAlive = false;
-                        break;
-                    case "If-Modified-Since:":
-                        // Check if request has a last modified value
-                        lastModified = getTimeFor(headerValue);
-                        break;
-                }
-            } else {
-                body.append(URLDecoder.decode(requestLine, "UTF-8"));
+            if (index == -1) break;
+            String header = requestLine.substring(0, index+1);
+            String headerValue = requestLine.substring(index+2);
+            switch (header) {
+                case "Host:":
+                    // Check that the header value only contains 1 word for host, else bad request
+                    if (headerValue.split(" ").length == 1) host = headerValue;
+                    else badRequest = true;
+                    break;
+                case "Connection:":
+                    // Check if request provides a connection preference
+                    if (headerValue.equals("keep-alive")) keepAlive = true;
+                    else if (headerValue.equals("close")) keepAlive = false;
+                    break;
+                case "If-Modified-Since:":
+                    // Check if request has a last modified value
+                    lastModified = getTimeFor(headerValue);
+                    break;
             }
         }
         // If bad request, or http/1.1 with no host, return status 400.
         if (badRequest || (isHttp1_1 && host == null)) {
-            bufferedResponse.write(getResponseHeader(400, null, null));
-            bufferedResponse.flush();
+            responseWriter.write(getResponseHeader(400, null, null));
+            responseWriter.flush();
             return;
         }
 
         // Perform requested service
         try {
+            String body;
             switch (method) {
                 case "GET":
                     FileData fileData = readFileDataFromPath(path);
-                    bufferedResponse.write(getResponseHeader(200, fileData.contentType, fileData.contentLength));
-                    bufferedResponse.write(fileData.data);
+                    responseWriter.write(getResponseHeader(200, fileData.contentType, fileData.contentLength));
+                    responseWriter.write(fileData.data);
                     break;
                 case "PUT":
-                    this.overwriteFileDataToPath(path, body.toString());
-                    bufferedResponse.write(getResponseHeader(200, null, null));
+                    body = readRequest(requestReader);
+                    this.overwriteFileDataToPath(path, body);
+                    responseWriter.write(getResponseHeader(200, null, null));
                     break;
                 case "POST":
-                    this.appendFileDataToPath(path, body.toString());
-                    bufferedResponse.write(getResponseHeader(200, null, null));
+                    body = readRequest(requestReader);
+                    this.appendFileDataToPath(path, body);
+                    responseWriter.write(getResponseHeader(200, null, null));
                     break;
                 case "HEAD":
-                    bufferedResponse.write(getResponseHeader(200, null, null));
+                    responseWriter.write(getResponseHeader(200, null, null));
                     break;
             }
         } catch (FileNotFoundException e) {
-            bufferedResponse.write(getResponseHeader(404, null, null));
+            responseWriter.write(getResponseHeader(404, null, null));
         }
-        bufferedResponse.flush();
+        responseWriter.flush();
+    }
+
+    private String readRequest(BufferedReader reader) throws IOException {
+        // Read the request
+        StringBuilder body = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null && !line.equals("")) {
+            if (line.equals("^C")) {
+                this.client.close();
+                return "";
+            } else {
+                body.append(line);
+                body.append(HTTPUtil.CRLF);
+            }
+        }
+        return body.toString();
     }
 
     private String getResponseHeader(int statusCode, String contentType, Long contentLength) {
