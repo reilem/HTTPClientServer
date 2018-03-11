@@ -12,7 +12,16 @@ public class HTTPClient {
         this.httpSocket = new Socket(InetAddress.getByName(HTTPUtil.parseHostName(uriString)), port);
     }
 
-    public String executeRequest(String method, String requestURI, String protocol, String extraHeaders) {
+    /**
+     * Executes a HTTP request with given parameters.
+     * @param method        the HTTP method of the request
+     * @param requestURI    the uri of the request
+     * @param protocol      the HTTP protocol to be used
+     * @param extraHeaders  extra headers for request, must include CRLF character for newline
+     * @param body          the body of the request, must include CRLF character for newline
+     * @return              a string containing the HTTP response
+     */
+    public String executeRequest(String method, String requestURI, String protocol, String extraHeaders, String body) {
         System.out.println("Executing request...");
         StringBuilder output = new StringBuilder();
         try {
@@ -24,7 +33,11 @@ public class HTTPClient {
             String hostName = HTTPUtil.parseHostName(requestURI);
             bufferedRequest.write(getRequestLine(method, requestURI, protocol));
             if (protocol.equals("HTTP/1.1")) bufferedRequest.write(getHostHeader(hostName));
-            if (extraHeaders != null) bufferedRequest.write(extraHeaders);
+            if (extraHeaders != null && !extraHeaders.isEmpty()) bufferedRequest.write(extraHeaders);
+            if (body != null && !body.isEmpty()) {
+                bufferedRequest.write(HTTPUtil.CRLF);
+                bufferedRequest.write(body);
+            }
             bufferedRequest.write(HTTPUtil.CRLF);
             bufferedRequest.flush();
             System.out.println("Request sent...");
@@ -42,7 +55,7 @@ public class HTTPClient {
             }
             System.out.println("Response received...");
         } catch (IOException e) {
-            if (e.getMessage().equals("Connection reset")) return "Connection closed by foreign host.";
+            if (e.getMessage().equals("Connection reset")) return "Request failed: Connection closed by foreign host.";
             else e.printStackTrace();
         }
         return output.toString();

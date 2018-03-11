@@ -2,6 +2,10 @@ package com.reinert;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,8 +57,8 @@ public class HTTPClientHandler implements Runnable {
                     if (!bufferedRequest.ready()) break;
                 }
                 String[] requestData = request.toString().split(HTTPUtil.CRLF);
-                boolean keepAlive = this.handleRequest(requestData, bufferedResponse);
-                if (!keepAlive) {
+                this.handleRequest(requestData, bufferedResponse);
+                if (!this.keepAlive) {
                     bufferedRequest.close();
                     bufferedResponse.close();
                     client.close();
@@ -66,12 +70,10 @@ public class HTTPClientHandler implements Runnable {
         }
     }
 
-    private boolean handleRequest(String[] httpRequest, BufferedWriter bufferedResponse) throws IOException {
+    private void handleRequest(String[] httpRequest, BufferedWriter bufferedResponse) throws IOException {
         System.out.println(this.threadName + " handling request: " + Arrays.toString(httpRequest));
-        // Get the main request line
-        String requestLine = httpRequest[0];
         // Split into components
-        String[] requestComponents = requestLine.split(" ");
+        String[] requestComponents = httpRequest[0].split(" ");
         // Get the request method
         String method = requestComponents[0];
         // Get the requested path
@@ -93,44 +95,51 @@ public class HTTPClientHandler implements Runnable {
         this.keepAlive = isHttp1_1;
         ZonedDateTime lastModified = null;
         String host = null;
+        StringBuilder body = new StringBuilder();
         for (int i = 1; i < httpRequest.length; i++) {
-            String httpHeader = httpRequest[i];
-            int index = httpHeader.indexOf(':');
-            String header = httpHeader.substring(0, index+1);
-            String headerValue = httpHeader.substring(index+2);
-            switch (header) {
-                case "Host:":
-                    // Check that the header value only contains 1 word for host, else bad request
-                    if (headerValue.split(" ").length == 1) host = headerValue;
-                    else badRequest = true;
-                    break;
-                case "Connection:":
-                    // Check if request provides a connection preference
-                    if (headerValue.equals("keep-alive")) keepAlive = true;
-                    else if (headerValue.equals("close")) keepAlive = false;
-                    break;
-                case "If-Modified-Since:":
-                    // Check if request has a last modified value
-                    lastModified = getTimeFor(headerValue);
-                    break;
+            String requestLine = httpRequest[i];
+            int index = requestLine.indexOf(':');
+            if (index != -1) {
+                String header = requestLine.substring(0, index+1);
+                String headerValue = requestLine.substring(index+2);
+                switch (header) {
+                    case "Host:":
+                        // Check that the header value only contains 1 word for host, else bad request
+                        if (headerValue.split(" ").length == 1) host = headerValue;
+                        else badRequest = true;
+                        break;
+                    case "Connection:":
+                        // Check if request provides a connection preference
+                        if (headerValue.equals("keep-alive")) keepAlive = true;
+                        else if (headerValue.equals("close")) keepAlive = false;
+                        break;
+                    case "If-Modified-Since:":
+                        // Check if request has a last modified value
+                        lastModified = getTimeFor(headerValue);
+                        break;
+                }
+            } else {
+                body.append(URLDecoder.decode(requestLine, "UTF-8"));
             }
         }
         // If bad request, or http/1.1 with no host, return status 400.
         if (badRequest || (isHttp1_1 && host == null)) {
             bufferedResponse.write(getResponseHeader(400, null, null));
             bufferedResponse.flush();
-            return keepAlive;
+            return;
         }
 
         // Perform requested service
         try {
             switch (method) {
                 case "GET":
-                    FileData fileData = getParsedFileData(path);
+                    FileData fileData = readFileDataFromPath(path);
                     bufferedResponse.write(getResponseHeader(200, fileData.contentType, fileData.contentLength));
                     bufferedResponse.write(fileData.data);
                     break;
                 case "PUT":
+                    this.overwriteFileDataToPath(path, body.toString());
+                    bufferedResponse.write(getResponseHeader(200, null, null));
                     break;
                 case "POST":
                     break;
@@ -142,7 +151,6 @@ public class HTTPClientHandler implements Runnable {
             bufferedResponse.write(getResponseHeader(404, null, null));
         }
         bufferedResponse.flush();
-        return keepAlive;
     }
 
     private String getResponseHeader(int statusCode, String contentType, Long contentLength) {
@@ -152,11 +160,12 @@ public class HTTPClientHandler implements Runnable {
         else connection = "close";
 
         String contentHead = "";
+        System.out.println(contentType);
         if (contentType != null) {
-            contentHead = ("Content-Type: " + contentType + HTTPUtil.CRLF);
+            contentHead += ("Content-Type: " + contentType + HTTPUtil.CRLF);
         }
         if (contentLength != null) {
-            contentHead = ("Content-Length: " + contentLength + HTTPUtil.CRLF);
+            contentHead += ("Content-Length: " + contentLength + HTTPUtil.CRLF);
         }
 
         // Generate a generic response body
@@ -182,15 +191,15 @@ public class HTTPClientHandler implements Runnable {
         }
     }
 
-    private FileData getParsedFileData(String path) throws IOException {
-        // Make relative file path from given path (in case it is in absolute form)
-        String filePath;
-        int i = path.indexOf('/');
-        if (i != -1) filePath = getResourcePath(path.substring(i+1));
-        else throw new FileNotFoundException("Invalid path format");
-        // Find the file and check if it exists
-        File f = new File(filePath);
-        if (!f.exists() || f.isDirectory()) throw new FileNotFoundException("File not found or is a directory");
+    private void overwriteFileDataToPath(String path, String body) throws IOException {
+        // Get the correct resource path
+        String resourcePath = getResourcePathFrom(path);
+        Files.write(Paths.get(resourcePath), body.getBytes(), StandardOpenOption.CREATE);
+    }
+
+    private FileData readFileDataFromPath(String path) throws IOException {
+        // Get the file
+        File f = this.getFileFromPath(path);
         // Read the data from the file
         BufferedReader fileReader = new BufferedReader(new FileReader(f));
         StringBuilder fileData = new StringBuilder();
@@ -201,7 +210,16 @@ public class HTTPClientHandler implements Runnable {
         }
         fileReader.close();
         // Return the file data
-        return new FileData(filePath, fileData.toString());
+        return new FileData(path, fileData.toString());
+    }
+
+    private File getFileFromPath(String path) throws FileNotFoundException {
+        // Make relative file path from given path (in case it is in absolute form)
+        String resourcePath = getResourcePathFrom(path);
+        // Find the file and check if it exists
+        File f = new File(resourcePath);
+        if (!f.exists() || f.isDirectory()) throw new FileNotFoundException("File not found or is a directory");
+        return f;
     }
 
     private String getCurrentTime() {
@@ -213,8 +231,10 @@ public class HTTPClientHandler implements Runnable {
         return ZonedDateTime.parse(timeString, formatter);
     }
 
-    private String getResourcePath(String relativePath) {
-        return ("resources/"+relativePath);
+    private String getResourcePathFrom(String path) throws IllegalArgumentException{
+        int i = path.indexOf('/');
+        if (i != -1) return ("resources/"+path.substring(i+1));
+        else throw new IllegalArgumentException("Invalid path format");
     }
 
     private class FileData {
@@ -225,7 +245,7 @@ public class HTTPClientHandler implements Runnable {
         FileData(String filePath, String data) {
             this.contentLength = data.getBytes().length * 8;
             this.data = data;
-            this.contentType = getFileType(filePath);
+            this.contentType = this.getFileType(filePath);
         }
 
         private String getFileType(String path) {

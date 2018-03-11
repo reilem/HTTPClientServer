@@ -14,14 +14,9 @@ public class ChatClient {
             // Make a client
             HTTPClient client = new HTTPClient(port, uri);
             // Execute its request
-            System.out.println(client.executeRequest(method, uri, "HTTP/1.1", null));
-            // Execute its second request
-            System.out.println(client.executeRequest(method, uri, protocol, null));
+            System.out.println(client.executeRequest(method, uri, protocol, null, null));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
     }
 }
