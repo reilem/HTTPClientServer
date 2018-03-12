@@ -1,20 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="57e978a2-191c-4372-8f5b-98173650fe33" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/ChatClient.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/ChatClient.class" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/ChatClientTest.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/ChatClientTest.class" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClient.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClient.class" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClientHandler$FileData.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClientHandler$FileData.class" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClientHandler.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPClientHandler.class" />
-      <change beforePath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPUtil.class" afterPath="$PROJECT_DIR$/out/production/ChatClient/com/reinert/HTTPUtil.class" />
-      <change beforePath="$PROJECT_DIR$/src/com/reinert/ChatClient.java" afterPath="$PROJECT_DIR$/src/com/reinert/ChatClient.java" />
-      <change beforePath="$PROJECT_DIR$/src/com/reinert/ChatClientTest.java" afterPath="$PROJECT_DIR$/src/com/reinert/ChatClientTest.java" />
-      <change beforePath="$PROJECT_DIR$/src/com/reinert/HTTPClient.java" afterPath="$PROJECT_DIR$/src/com/reinert/HTTPClient.java" />
-      <change beforePath="$PROJECT_DIR$/src/com/reinert/HTTPClientHandler.java" afterPath="$PROJECT_DIR$/src/com/reinert/HTTPClientHandler.java" />
-      <change beforePath="$PROJECT_DIR$/src/com/reinert/HTTPUtil.java" afterPath="$PROJECT_DIR$/src/com/reinert/HTTPUtil.java" />
-    </list>
+    <list default="true" id="57e978a2-191c-4372-8f5b-98173650fe33" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -350,12 +337,12 @@
       <workItem from="1520816870710" duration="1090000" />
       <workItem from="1520860701405" duration="877000" />
       <workItem from="1520862784374" duration="15000" />
-      <workItem from="1520876111716" duration="9756000" />
+      <workItem from="1520876111716" duration="9853000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51415000" />
+    <option name="totallyTimeSpent" value="51512000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1046" extended-state="6" />
