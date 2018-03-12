@@ -5,14 +5,14 @@ public class ChatClientTest {
         // Make a client
         HTTPClient client = new HTTPClient(2626, "localhost");
         // Execute a put request
-        System.out.println(client.executeRequest("HEAD", "localhost/", "HTTP/1.1", null, null));
+        System.out.println(client.executeRequest("HEAD", "localhost/", "HTTP/1.1", null));
         // Execute a put request
-        System.out.println(client.executeRequest("PUT", "localhost/test.txt", "HTTP/1.1", null, "This is some data to put in a file.\n"));
+        System.out.println(client.executeRequest("PUT", "localhost/test.txt", "HTTP/1.1", "This is some data to put in a file."+HTTPUtil.CRLF));
         // Execute a get request
-        System.out.println(client.executeRequest("GET", "localhost/test.txt", "HTTP/1.1", null, null));
+        System.out.println(client.executeRequest("GET", "localhost/test.txt", "HTTP/1.1", null));
         // Execute a post request
-        System.out.println(client.executeRequest("POST", "localhost/test.txt", "HTTP/1.1", null, "More data to put in a file!"));
+        System.out.println(client.executeRequest("POST", "localhost/test.txt", "HTTP/1.1", "More data to put in a file!"+HTTPUtil.CRLF));
         // Execute a put request
-        System.out.println(client.executeRequest("GET", "localhost/test.txt", "HTTP/1.1", null, null));
+        System.out.println(client.executeRequest("GET", "localhost/test.txt", "HTTP/1.1", null));
     }
 }

@@ -4,22 +4,29 @@ public abstract class HTTPUtil {
 
     public static final String NEW_LINE = System.getProperty("line.separator");
     public static final String CRLF = "\r\n";
+    public static final char CR = '\r';
+    public static final char LF = '\n';
 
     public static String parseHostName(String uri) {
-        int i = uri.lastIndexOf('/');
+        String stripped = stripHttp(uri);
+        int i = stripped.indexOf('/');
         if (i != -1) {
-            String host = uri.substring(0, i);
-            if (host.startsWith("https://")) return host.substring(8);
-            if (host.startsWith("http://")) return host.substring(7);
-            return host;
+            return stripped.substring(0, i);
         }
-        return uri;
+        return stripped;
     }
 
     public static String parseParams(String uri) {
-        int i = uri.lastIndexOf('/');
-        if (i != -1) return uri.substring(i);
+        String stripped = stripHttp(uri);
+        int i = stripped.indexOf('/');
+        if (i != -1) return stripped.substring(i);
         return "/";
+    }
+
+    private static String stripHttp(String str) {
+        if (str.startsWith("https://")) return str.substring(8);
+        if (str.startsWith("http://")) return str.substring(7);
+        return str;
     }
 
 }

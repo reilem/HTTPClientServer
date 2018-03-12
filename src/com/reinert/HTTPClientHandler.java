@@ -151,13 +151,8 @@ public class HTTPClientHandler implements Runnable {
         StringBuilder body = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null && !line.equals("")) {
-            if (line.equals("^C")) {
-                this.client.close();
-                return "";
-            } else {
-                body.append(line);
-                body.append(HTTPUtil.CRLF);
-            }
+            body.append(line);
+            body.append(HTTPUtil.CRLF);
         }
         return body.toString();
     }
@@ -175,6 +170,7 @@ public class HTTPClientHandler implements Runnable {
         if (contentLength != null) {
             contentHead += ("Content-Length: " + contentLength + HTTPUtil.CRLF);
         }
+        // TODO: ADD LAST MODIFIED
 
         // Generate a generic response body
         String genericResponseBody = (
