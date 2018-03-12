@@ -5,12 +5,10 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class HTTPClient {
-
-    private enum Info {
-        type, length, connection
-    }
 
     private final Socket httpSocket;
 
@@ -36,23 +34,22 @@ public class HTTPClient {
     public String executeRequest(String method, String requestURI, String protocol, String body) {
         if (this.httpSocket == null) return "Invalid socket.";
         System.out.println("Executing request...");
-        StringBuilder output = new StringBuilder();
+        StringBuilder response = new StringBuilder();
         try {
             // Open request & response streams
-            BufferedWriter bufferedRequest = new BufferedWriter(new OutputStreamWriter(httpSocket.getOutputStream()));
-            InputStream input = httpSocket.getInputStream();
+            BufferedWriter requestOutput = new BufferedWriter(new OutputStreamWriter(httpSocket.getOutputStream()));
+            InputStream responseInput = httpSocket.getInputStream();
             // Perform request
             String hostName = HTTPUtil.parseHostName(requestURI);
-            bufferedRequest.write(getRequestLine(method, requestURI, protocol));
-            if (protocol.equals("HTTP/1.1")) bufferedRequest.write(getHostHeader(hostName));
-            bufferedRequest.write(getExtraHeaders());
+            requestOutput.write(getRequestLine(method, requestURI, protocol));
+            if (protocol.equals("HTTP/1.1")) requestOutput.write(getHostHeader(hostName));
             if (body != null && !body.isEmpty()) {
-                bufferedRequest.write(HTTPUtil.CRLF);
-                bufferedRequest.write(body);
-                bufferedRequest.write(HTTPUtil.CRLF);
+                requestOutput.write(HTTPUtil.CRLF);
+                requestOutput.write(body);
+                requestOutput.write(HTTPUtil.CRLF);
             }
-            bufferedRequest.write(HTTPUtil.CRLF);
-            bufferedRequest.flush();
+            requestOutput.write(HTTPUtil.CRLF);
+            requestOutput.flush();
             System.out.println("Request sent...");
 
             Boolean connectionOpen = null;
@@ -60,7 +57,7 @@ public class HTTPClient {
             String contentType = "text";
             String charSet = "utf-8";
             StringBuilder line = new StringBuilder();
-            int next = input.read();
+            int next = responseInput.read();
             boolean previousCR = false;
             while (next != -1) {
                 char nextChar = (char)next;
@@ -95,32 +92,38 @@ public class HTTPClient {
                                 break;
                         }
                     }
-                    output.append(line);
-                    output.append(HTTPUtil.NEW_LINE);
+                    response.append(line);
+                    response.append(HTTPUtil.NEW_LINE);
                     line.setLength(0);
                     previousCR = false;
                 } else {
                     line.append(nextChar);
                 }
-                next = input.read();
+                next = responseInput.read();
             }
-            output.append(HTTPUtil.NEW_LINE);
+            response.append(HTTPUtil.NEW_LINE);
 
             int bufferSize = contentLength != null ? contentLength.intValue() : 2048;
             byte[] buffer = new byte[bufferSize];
             ByteArrayOutputStream byteOutput = new ByteArrayOutputStream(bufferSize);
-            int val = input.read(buffer);
+            int val = responseInput.read(buffer);
             byteOutput.write(buffer, 0, val);
 
             // Parse the received byte array
             if (contentType.startsWith("text")) {
                 String str = byteOutput.toString(charSet);
-                output.append(str);
+                response.append(str);
+                int index = contentType.indexOf('/');
+                String fileType = contentType.substring(index + 1);
+                // Get the correct resource path
+                String resourcePath = "res-client/file."+fileType;
+                // Overwrite or create new file at path with body data
+                Files.write(Paths.get(resourcePath), str.getBytes());
             } else if (contentType.startsWith("image")) {
                 int index = contentType.indexOf('/');
                 String imageType = contentType.substring(index + 1);
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(byteOutput.toByteArray()));
-                ImageIO.write(img, imageType, new File("resources/image."+imageType));
+                ImageIO.write(img, imageType, new File("res-client/image."+imageType));
             }
 
             System.out.println("Response received...");
@@ -128,7 +131,7 @@ public class HTTPClient {
             if (e.getMessage().equals("Connection reset")) return "Request failed: Connection closed by foreign host.";
             else e.printStackTrace();
         }
-        return output.toString();
+        return response.toString();
     }
 
     public void closeClient() {
@@ -144,13 +147,6 @@ public class HTTPClient {
         if (protocol.equals("HTTP/1.1")) path = HTTPUtil.parseParams(uri);
         else path = uri;
         return (method + " " + path + " " + protocol + HTTPUtil.CRLF);
-    }
-
-    private String getExtraHeaders() {
-        return (
-            "Accept: */*" + HTTPUtil.CRLF +
-            "Accept-Encoding: gzip" + HTTPUtil.CRLF
-        );
     }
 
     private String getHostHeader(String hostName) {
