@@ -32,17 +32,22 @@ public class HTTPClient {
      * @return              a string containing the HTTP response
      */
     public String executeRequest(String method, String requestURI, String protocol, String body) {
-        if (this.httpSocket == null) return "Invalid socket.";
+        if (this.httpSocket == null) return "Client has no connection.";
         System.out.println("Executing request...");
+        // Create a response string builder
         StringBuilder response = new StringBuilder();
         try {
             // Open request & response streams
             BufferedWriter requestOutput = new BufferedWriter(new OutputStreamWriter(httpSocket.getOutputStream()));
             InputStream responseInput = httpSocket.getInputStream();
-            // Perform request
+
+            // Parse host name from given uri
             String hostName = HTTPUtil.parseHostName(requestURI);
+            // Write the main request line to output stream
             requestOutput.write(getRequestLine(method, requestURI, protocol));
+            // If HTTP/1.1 include a host header
             if (protocol.equals("HTTP/1.1")) requestOutput.write(getHostHeader(hostName));
+            // If body is given, include it
             if (body != null && !body.isEmpty()) {
                 requestOutput.write(HTTPUtil.CRLF);
                 requestOutput.write(body);
@@ -71,11 +76,6 @@ public class HTTPClient {
                         String value = line.substring(index+2).toLowerCase();
                         switch (tag) {
                             case "content-type:":
-                                /**
-                                 * Image types: image/jpeg image/png image/gif
-                                 * Text: text/html, text/css
-                                 * Apps: application/javascript
-                                 */
                                 int t = value.indexOf(';');
                                 if (t == -1) contentType = value;
                                 else {
@@ -116,7 +116,7 @@ public class HTTPClient {
                 int index = contentType.indexOf('/');
                 String fileType = contentType.substring(index + 1);
                 // Get the correct resource path
-                String resourcePath = "res-client/file."+fileType;
+                String resourcePath = "res-client/response."+fileType;
                 // Overwrite or create new file at path with body data
                 Files.write(Paths.get(resourcePath), str.getBytes());
             } else if (contentType.startsWith("image")) {
