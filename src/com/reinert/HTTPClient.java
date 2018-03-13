@@ -7,6 +7,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HTTPClient {
 
@@ -102,28 +105,64 @@ public class HTTPClient {
                 next = responseInput.read();
             }
             response.append(HTTPUtil.NEW_LINE);
+            System.out.println(response);
 
             int bufferSize = contentLength != null ? contentLength.intValue() : 2048;
             byte[] buffer = new byte[bufferSize];
             ByteArrayOutputStream byteOutput = new ByteArrayOutputStream(bufferSize);
             int val = responseInput.read(buffer);
-            byteOutput.write(buffer, 0, val);
+            byteOutput.write(buffer);
 
             // Parse the received byte array
             if (contentType.startsWith("text")) {
-                String str = byteOutput.toString(charSet);
-                response.append(str);
+                // Convert byte output to string with given charSet
+                String textData = byteOutput.toString(charSet);
+                // Append byte output to response string
+                response.append(textData);
+                // Get index for secondary file type
                 int index = contentType.indexOf('/');
+                // Get file type
                 String fileType = contentType.substring(index + 1);
                 // Get the correct resource path
                 String resourcePath = "res-client/response."+fileType;
-                // Overwrite or create new file at path with body data
-                Files.write(Paths.get(resourcePath), str.getBytes());
+                // Overwrite or create new file at path with byteOutput data
+                Files.write(Paths.get(resourcePath), byteOutput.toByteArray());
+                // Find any <img /> tags if html
+                if (fileType.equals("html")) {
+                    // Lower cases makes pattern matching easier
+                    String htmlData = textData.toLowerCase();
+                    // Make an image tag pattern
+                    Pattern imgTagPattern = Pattern.compile("<img src=.*(>|/>)");
+                    // Make quotes pattern
+                    Pattern quotePattern = Pattern.compile("\".*\"");
+                    // Make matcher for image tags with html data
+                    Matcher imgTagMatcher = imgTagPattern.matcher(htmlData);
+                    // Make a list to store found image paths
+                    ArrayList<String> imagePaths = new ArrayList<>();
+                    // While img tag matcher finds matched
+                    while (imgTagMatcher.find()) {
+                        // Get the image tag sub string
+                        String imgTag = htmlData.substring(imgTagMatcher.start(), imgTagMatcher.end());
+                        // Make a matcher to find quotes in the image tag
+                        Matcher quoteMatcher = quotePattern.matcher(imgTag);
+                        // If quotes found
+                        if (quoteMatcher.find()) {
+                            // Extract the file path from the image tag
+                            imagePaths.add(imgTag.substring(quoteMatcher.start()+1, quoteMatcher.end()-1));
+                        }
+                    }
+                    for (String imagePath : imagePaths) {
+                        System.out.println(imagePath);
+                        HTTPClient imageRequest = new HTTPClient(httpSocket.getPort(), httpSocket.getInetAddress().getHostName());
+                        imageRequest.executeRequest("GET", "www.tinyos.net/"+imagePath, protocol, null);
+                    }
+                }
             } else if (contentType.startsWith("image")) {
                 int index = contentType.indexOf('/');
                 String imageType = contentType.substring(index + 1);
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(byteOutput.toByteArray()));
-                ImageIO.write(img, imageType, new File("res-client/image."+imageType));
+                String param = HTTPUtil.parseParams(requestURI);
+                ImageIO.write(img, imageType, new File("res-client/" + param));
             }
 
             System.out.println("Response received...");
