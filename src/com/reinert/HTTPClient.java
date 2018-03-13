@@ -2,6 +2,8 @@ package com.reinert;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -34,8 +36,8 @@ public class HTTPClient {
      * @param body          the body of the request, must include CRLF character for newline
      * @return              a string containing the HTTP response
      */
-    public String executeRequest(String method, String requestURI, String protocol, String body) {
-        if (this.httpSocket == null) return "Client has no connection.";
+    public void executeRequest(String method, String requestURI, String protocol, String body) {
+        if (this.httpSocket == null) return;
         System.out.println("Executing request...");
         // Create a response string builder
         StringBuilder response = new StringBuilder();
@@ -105,13 +107,27 @@ public class HTTPClient {
                 next = responseInput.read();
             }
             response.append(HTTPUtil.NEW_LINE);
-            System.out.println(response);
+            System.out.println("Header received: " + HTTPUtil.NEW_LINE + response);
+            response.setLength(0);
 
-            int bufferSize = contentLength != null ? contentLength.intValue() : 2048;
+            // TODO use byte stream instead of buffers
+            int bufferSize = 2048;
             byte[] buffer = new byte[bufferSize];
             ByteArrayOutputStream byteOutput = new ByteArrayOutputStream(bufferSize);
             int val = responseInput.read(buffer);
-            byteOutput.write(buffer);
+            System.out.println(val);
+            long length = 0;
+            while (true) {
+                byteOutput.write(buffer);
+                length += val;
+                if (contentLength != null && length >= contentLength) {
+                    System.out.println(length);
+                    break;
+                }
+                val = responseInput.read(buffer, 0, val);
+                System.out.println(val);
+            }
+
 
             // Parse the received byte array
             if (contentType.startsWith("text")) {
@@ -123,8 +139,10 @@ public class HTTPClient {
                 int index = contentType.indexOf('/');
                 // Get file type
                 String fileType = contentType.substring(index + 1);
+                String params = HTTPUtil.parseParams(requestURI);
+                String filePath = params.equals("/") ? "index.html" : params;
                 // Get the correct resource path
-                String resourcePath = "res-client/response."+fileType;
+                String resourcePath = "res-client/"+filePath;
                 // Overwrite or create new file at path with byteOutput data
                 Files.write(Paths.get(resourcePath), byteOutput.toByteArray());
                 // Find any <img /> tags if html
@@ -151,6 +169,8 @@ public class HTTPClient {
                             imagePaths.add(imgTag.substring(quoteMatcher.start()+1, quoteMatcher.end()-1));
                         }
                     }
+                    System.out.println("Response received...");
+                    System.out.println(response);
                     for (String imagePath : imagePaths) {
                         System.out.println(imagePath);
                         HTTPClient imageRequest = new HTTPClient(httpSocket.getPort(), httpSocket.getInetAddress().getHostName());
@@ -160,17 +180,22 @@ public class HTTPClient {
             } else if (contentType.startsWith("image")) {
                 int index = contentType.indexOf('/');
                 String imageType = contentType.substring(index + 1);
-                BufferedImage img = ImageIO.read(new ByteArrayInputStream(byteOutput.toByteArray()));
                 String param = HTTPUtil.parseParams(requestURI);
-                ImageIO.write(img, imageType, new File("res-client/" + param));
-            }
+                String filePath = "res-client/" + param;
+                OutputStream out = new BufferedOutputStream(new FileOutputStream(filePath));
+                byte[] data = byteOutput.toByteArray();
+                int width = 1; int height = 2;
+                DataBuffer dBuff = new DataBufferByte(data, data.length);
+                BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
 
-            System.out.println("Response received...");
+                ImageIO.write(image, "png", new File("image.png"));
+
+                System.out.println("File " + param + " received.");
+            }
         } catch (IOException e) {
-            if (e.getMessage().equals("Connection reset")) return "Request failed: Connection closed by foreign host.";
+            if (e.getMessage().equals("Connection reset")) return;
             else e.printStackTrace();
         }
-        return response.toString();
     }
 
     public void closeClient() {

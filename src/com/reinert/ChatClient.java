@@ -11,6 +11,21 @@ public class ChatClient {
         // Make a client
         HTTPClient client = new HTTPClient(port, uri);
         // Execute its request
-        System.out.println(client.executeRequest(method, uri, protocol, null));
+        client.executeRequest(method, uri, protocol, null);
+//        try {
+//            URL url = new URL("http://www.tinyos.net/tos-jwall.jpg");
+//            InputStream in = null;
+//            in = new BufferedInputStream(url.openStream());
+//            OutputStream out = new BufferedOutputStream(new FileOutputStream("Image-Porkeri_001.jpg"));
+//
+//            for ( int i; (i = in.read()) != -1; ) {
+//                out.write(i);
+//            }
+//            in.close();
+//            out.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
     }
 }
