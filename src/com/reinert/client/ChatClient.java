@@ -1,4 +1,4 @@
-package com.reinert;
+package com.reinert.client;
 
 public class ChatClient {
     public static void main(String[] args) {

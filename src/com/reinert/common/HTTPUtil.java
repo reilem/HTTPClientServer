@@ -1,4 +1,4 @@
-package com.reinert;
+package com.reinert.common;
 
 public abstract class HTTPUtil {
 

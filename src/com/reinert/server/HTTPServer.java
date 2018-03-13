@@ -1,4 +1,4 @@
-package com.reinert;
+package com.reinert.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;

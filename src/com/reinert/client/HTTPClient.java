@@ -1,17 +1,10 @@
-package com.reinert;
+package com.reinert.client;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
+import com.reinert.common.HTTPUtil;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class HTTPClient {
 
@@ -63,7 +56,7 @@ public class HTTPClient {
             System.out.println("Request sent...");
 
             Boolean connectionOpen = null;
-            Long contentLength = null;
+            int contentLength = 0;
             String contentType = "text";
             String charSet = "utf-8";
             StringBuilder line = new StringBuilder();
@@ -90,7 +83,7 @@ public class HTTPClient {
                                 }
                                 break;
                             case "content-length:":
-                                contentLength = Long.parseLong(value);
+                                contentLength = Integer.parseInt(value);
                                 break;
                             case "connection:":
                                 connectionOpen = value.equals("keep-alive");
@@ -110,24 +103,16 @@ public class HTTPClient {
             System.out.println("Header received: " + HTTPUtil.NEW_LINE + response);
             response.setLength(0);
 
-            // TODO use byte stream instead of buffers
-            int bufferSize = 2048;
-            byte[] buffer = new byte[bufferSize];
-            ByteArrayOutputStream byteOutput = new ByteArrayOutputStream(bufferSize);
-            int val = responseInput.read(buffer);
-            System.out.println(val);
-            long length = 0;
-            while (true) {
-                byteOutput.write(buffer);
-                length += val;
-                if (contentLength != null && length >= contentLength) {
-                    System.out.println(length);
-                    break;
-                }
-                val = responseInput.read(buffer, 0, val);
-                System.out.println(val);
-            }
 
+            int bufferSize = contentLength;
+            byte[] buffer = new byte[bufferSize];
+            BufferedInputStream in = new BufferedInputStream(responseInput);
+            int length = 0;
+            while (length < contentLength) {
+                int nextByteLen = in.read(buffer, length, contentLength - length);
+                if (nextByteLen == -1) break;
+                length += nextByteLen;
+            }
 
             // Parse the received byte array
             if (contentType.startsWith("text")) {
@@ -177,21 +162,12 @@ public class HTTPClient {
                         imageRequest.executeRequest("GET", "www.tinyos.net/"+imagePath, protocol, null);
                     }
                 }
-            } else if (contentType.startsWith("image")) {
-                int index = contentType.indexOf('/');
-                String imageType = contentType.substring(index + 1);
-                String param = HTTPUtil.parseParams(requestURI);
-                String filePath = "res-client/" + param;
-                OutputStream out = new BufferedOutputStream(new FileOutputStream(filePath));
-                byte[] data = byteOutput.toByteArray();
-                int width = 1; int height = 2;
-                DataBuffer dBuff = new DataBufferByte(data, data.length);
-                BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-
-                ImageIO.write(image, "png", new File("image.png"));
-
-                System.out.println("File " + param + " received.");
             }
+            String param = HTTPUtil.parseParams(requestURI);
+            String file = param.equals("/") ? "/index.html" : param;
+            String filePath = "res-client/" + file;
+            FileOutputStream fos = new FileOutputStream(filePath);
+            fos.write(buffer);
         } catch (IOException e) {
             if (e.getMessage().equals("Connection reset")) return;
             else e.printStackTrace();

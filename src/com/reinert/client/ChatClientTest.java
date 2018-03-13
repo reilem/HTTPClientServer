@@ -1,4 +1,6 @@
-package com.reinert;
+package com.reinert.client;
+
+import com.reinert.common.HTTPUtil;
 
 public class ChatClientTest {
     public static void main(String[] args) {
@@ -7,7 +9,7 @@ public class ChatClientTest {
         // Execute a put request
         client.executeRequest("HEAD", "localhost/", "HTTP/1.1", null);
         // Execute a put request
-        client.executeRequest("PUT", "localhost/test.txt", "HTTP/1.1", "This is some data to put in a file."+HTTPUtil.CRLF);
+        client.executeRequest("PUT", "localhost/test.txt", "HTTP/1.1", "This is some data to put in a file."+ HTTPUtil.CRLF);
         // Execute a get request
         client.executeRequest("GET", "localhost/test.txt", "HTTP/1.1", null);
         // Execute a post request
