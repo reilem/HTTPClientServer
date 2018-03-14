@@ -52,7 +52,7 @@ public class HTTPClient {
         requestOutput.flush();
         System.out.println("Request sent...");
 
-        Boolean connectionOpen = null;
+        Boolean connectionOpen = false;
         int contentLength = 0;
         String contentType = "text";
         String charSet = "UTF-8";
@@ -117,25 +117,33 @@ public class HTTPClient {
             int index = contentType.indexOf('/');
             // Get file type
             String fileType = contentType.substring(index + 1);
-            // Find any <img /> tags if html
+            // MAke the string contents
+            String responseBody = new String(buffer, charSet);
+            System.out.println("Response received...");
+            System.out.println(responseBody);
+            // IF file type is html
             if (fileType.equals("html")) {
-                ArrayList<String> imagePaths = HTMLUtil.getImageURLs(new String(buffer, charSet));
-                System.out.println("Response received...");
-                System.out.println(response);
-                for (String imagePath : imagePaths) {
+                // Parse the sources from image tags
+                ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody);
+                for (String imagePath : extraPaths) {
                     System.out.println(imagePath);
                     this.executeRequest("GET", this.host+"/"+imagePath, protocol, null);
                 }
             }
         }
+        // Write out the file
         String param = HTTPUtil.parsePath(requestURI);
         String file = param.equals("/") ? "/index.html" : param;
         String filePath = "res-client/" + file;
         FileOutputStream fos = new FileOutputStream(filePath);
         fos.write(buffer);
+        // Close connection if needed
+        if (!connectionOpen) {
+            this.close();
+        }
     }
 
-    public void closeClient() {
+    private void close() {
         try {
             this.httpSocket.close();
         } catch (IOException e) {

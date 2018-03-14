@@ -18,21 +18,5 @@ public class ChatClient {
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
-
-//        try {
-//            URL url = new URL("http://www.tinyos.net/tos-jwall.jpg");
-//            InputStream in = null;
-//            in = new BufferedInputStream(url.openStream());
-//            OutputStream out = new BufferedOutputStream(new FileOutputStream("Image-Porkeri_001.jpg"));
-//
-//            for ( int i; (i = in.read()) != -1; ) {
-//                out.write(i);
-//            }
-//            in.close();
-//            out.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
     }
 }

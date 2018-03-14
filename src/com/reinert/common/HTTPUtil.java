@@ -16,8 +16,10 @@ public abstract class HTTPUtil {
         return makeURI(uriStr).getHost();
     }
 
-    public static String parsePath(String uri) throws MalformedURLException, URISyntaxException {
-        return makeURI(uri).getPath();
+    public static String parsePath(String uriStr) throws MalformedURLException, URISyntaxException {
+        String path = makeURI(uriStr).getPath();
+        if (path.startsWith("/")) return path;
+        else return "/"+path;
     }
 
     private static URI makeURI(String str) throws URISyntaxException, MalformedURLException {
