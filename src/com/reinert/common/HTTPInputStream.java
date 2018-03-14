@@ -40,11 +40,11 @@ public class HTTPInputStream {
 
     private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {
         String nextLine = this.getNextLine();
-        if (nextLine.equals("")) return null;
+        if (nextLine.equals(HTTPUtil.CRLF)) return null;
         String[] split = nextLine.split(": ");
         try {
-            HTTPField f = HTTPField.getFieldFor(split[0]);
-            return new Pair<>(f, f.parseValueString(split[1]));
+            HTTPField f = HTTPField.getFieldFor(split[0].trim());
+            return new Pair<>(f, f.parseValueString(split[1].trim()));
         } catch (IllegalArgumentException e) {
             return new Pair<>(null, null);
         }

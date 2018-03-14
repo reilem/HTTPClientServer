@@ -15,14 +15,19 @@ public enum HTTPField {
     }
 
     public Object parseValueString(String str) {
-        if (this.equals(CONTENT_LENGTH))
-            return Integer.parseInt(str);
-        else return str;
+        switch (this) {
+            case CONTENT_LENGTH: return Integer.parseInt(str);
+            case CONTENT_TYPE: return ContentType.parseContentType(str);
+            default: return str;
+        }
     }
 
     public boolean isValidValueType(Object obj) {
-        if (this.equals(CONTENT_LENGTH) && !(obj instanceof Integer)) return false;
-        return true;
+        switch (this) {
+            case CONTENT_LENGTH: return (obj instanceof Integer);
+            case CONTENT_TYPE: return (obj instanceof ContentType);
+            default: return true;
+        }
     }
 
     @Override
@@ -30,5 +35,3 @@ public enum HTTPField {
         return this.field;
     }
 }
-
-class FieldNotFoundException extends Exception {}
