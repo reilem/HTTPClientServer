@@ -19,6 +19,7 @@ public class HTTPHeader {
     }
 
     public Object getFieldValue(HTTPField field) {
+        if (!fields.containsKey(field)) return null;
         return fields.get(field);
     }
 

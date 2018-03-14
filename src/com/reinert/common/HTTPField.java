@@ -2,7 +2,9 @@ package com.reinert.common;
 
 public enum HTTPField {
     CONTENT_TYPE("Content-Type"),
-    CONTENT_LENGTH("Content-Length");
+    CONTENT_LENGTH("Content-Length"),
+    CONNECTION("Connection"),
+    LOCATION("Location");
 
     private final String field;
 
@@ -18,6 +20,7 @@ public enum HTTPField {
         switch (this) {
             case CONTENT_LENGTH: return Integer.parseInt(str);
             case CONTENT_TYPE: return ContentType.parseContentType(str);
+            case CONNECTION: return Boolean.parseBoolean(str);
             default: return str;
         }
     }
@@ -26,6 +29,8 @@ public enum HTTPField {
         switch (this) {
             case CONTENT_LENGTH: return (obj instanceof Integer);
             case CONTENT_TYPE: return (obj instanceof ContentType);
+            case CONNECTION: return (obj instanceof Boolean);
+            case LOCATION: return (obj instanceof String);
             default: return true;
         }
     }

@@ -26,7 +26,7 @@ public class HTTPInputStream {
         return header;
     }
 
-    public byte[] getBody(int bufferSize) throws IOException {
+    public HTTPBody getBody(int bufferSize) throws IOException {
         byte[] buffer = new byte[bufferSize];
         BufferedInputStream in = new BufferedInputStream(inputStream);
         int length = 0;
@@ -35,7 +35,7 @@ public class HTTPInputStream {
             if (nextByteLen == -1) break;
             length += nextByteLen;
         }
-        return buffer;
+        return new HTTPBody(buffer);
     }
 
     private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {
