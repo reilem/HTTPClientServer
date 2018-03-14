@@ -186,6 +186,7 @@ public class HTTPClientHandler implements Runnable {
                 "Connection: " + connection + HTTPUtil.CRLF + HTTPUtil.CRLF
         );
 
+        // TODO: add 411 length required
         // Determine the response based on status code
         switch (statusCode) {
             case 200:
@@ -263,7 +264,7 @@ public class HTTPClientHandler implements Runnable {
         final String data;
 
         FileData(String filePath, String data) {
-            this.contentLength = data.getBytes().length * 8;
+            this.contentLength = data.getBytes().length;
             this.data = data;
             this.contentType = this.getFileType(filePath);
         }

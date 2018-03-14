@@ -1,11 +1,11 @@
 package com.reinert.client;
 
 import com.reinert.common.HTMLUtil;
+import com.reinert.common.HTTPRequest;
 import com.reinert.common.HTTPUtil;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -31,26 +31,16 @@ public class HTTPClient {
      */
     public void executeRequest(String method, String requestURI, String protocol, String body) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
-        System.out.println("Executing request...");
+
+        // Send request
+        String path = HTTPUtil.parsePath(requestURI);
+        HTTPRequest request = new HTTPRequest(this.host, method, path, protocol, body);
+        request.initiateRequest(httpSocket.getOutputStream());
+
         // Create a response string builder
         StringBuilder response = new StringBuilder();
         // Open request & response streams
-        BufferedWriter requestOutput = new BufferedWriter(new OutputStreamWriter(httpSocket.getOutputStream()));
         InputStream responseInput = httpSocket.getInputStream();
-
-        // Write the main request line to output stream
-        requestOutput.write(getRequestLine(method, requestURI, protocol));
-        // If HTTP/1.1 include a host header
-        if (protocol.equals("HTTP/1.1")) requestOutput.write(getHostHeader());
-        // If body is given, include it
-        if (body != null && !body.isEmpty()) {
-            requestOutput.write(HTTPUtil.CRLF);
-            requestOutput.write(body);
-            requestOutput.write(HTTPUtil.CRLF);
-        }
-        requestOutput.write(HTTPUtil.CRLF);
-        requestOutput.flush();
-        System.out.println("Request sent...");
 
         Boolean connectionOpen = false;
         int contentLength = 0;
@@ -103,7 +93,7 @@ public class HTTPClient {
 
         int bufferSize = contentLength;
         byte[] buffer = new byte[bufferSize];
-        BufferedInputStream in = new BufferedInputStream(responseInput);
+        BufferedInputStream in = new BufferedInputStream(httpSocket.getInputStream());
         int length = 0;
         while (length < contentLength) {
             int nextByteLen = in.read(buffer, length, contentLength - length);
@@ -131,6 +121,7 @@ public class HTTPClient {
                 }
             }
         }
+        System.out.println(new String(buffer));
         // Write out the file
         String param = HTTPUtil.parsePath(requestURI);
         String file = param.equals("/") ? "/index.html" : param;
@@ -150,21 +141,4 @@ public class HTTPClient {
             e.printStackTrace();
         }
     }
-
-    private String getRequestLine(String method, String uri, String protocol) {
-        String path = "/";
-        if (protocol.equals("HTTP/1.1")) {
-            try {
-                path = HTTPUtil.parsePath(uri);
-            } catch (MalformedURLException | URISyntaxException e) {
-                e.printStackTrace();
-            }
-        } else path = uri;
-        return (method + " " + path + " " + protocol + HTTPUtil.CRLF);
-    }
-
-    private String getHostHeader() {
-        return  ("Host: " + this.host + HTTPUtil.CRLF);
-    }
-
 }
