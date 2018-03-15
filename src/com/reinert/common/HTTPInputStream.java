@@ -20,15 +20,11 @@ public class HTTPInputStream {
         String protocol = firstLine[0].trim();
         int status = Integer.parseInt(firstLine[1]);
         HTTPHeader header = new HTTPHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
-        Pair<Object, Object> nextEntry;
+        Pair<HTTPField, Object> nextEntry;
         while ((nextEntry = getNextHeaderLine()) != null) {
-            Object key = nextEntry.getKey();
+            HTTPField key = nextEntry.getKey();
             Object val = nextEntry.getValue();
-            if (key instanceof HTTPField) {
-                header.addField((HTTPField)key, val);
-            } else {
-                header.addOther((String)key, (String)val);
-            }
+            header.addField(key, val);
         }
         return header;
     }
@@ -64,7 +60,7 @@ public class HTTPInputStream {
         return buffer;
     }
 
-    private Pair<Object, Object> getNextHeaderLine() throws IOException {
+    private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {
         String nextLine = this.getNextLine();
         if (nextLine.equals(HTTPUtil.CRLF)) return null;
         String[] split = nextLine.split(": ");
@@ -74,7 +70,7 @@ public class HTTPInputStream {
             HTTPField f = HTTPField.getFieldFor(headerField);
             return new Pair<>(f, f.parseValueString(headerValue));
         } catch (IllegalArgumentException e) {
-            return new Pair<>(headerField, headerValue);
+            return new Pair<>(HTTPField.OTHER, nextLine.replace("\r\n", ""));
         }
     }
 
