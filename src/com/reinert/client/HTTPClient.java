@@ -26,7 +26,6 @@ public class HTTPClient {
      * @param uri           the uri of the request
      * @param protocol      the HTTP protocol to be used
      * @param requestBody   the requestBody of the request, must include CRLF characters as newlines
-     * @return              a string containing the HTTP response
      */
     public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
@@ -34,10 +33,10 @@ public class HTTPClient {
         // Send request
         String path = uri.getPath();
         HTTPRequest request = new HTTPRequest(this.host, method, path, protocol, requestBody);
-        request.initiateRequest(httpSocket.getOutputStream());
+        request.initiateRequest(this.httpSocket.getOutputStream());
 
         HTTPResponse response = new HTTPResponse();
-        response.handleResponse(httpSocket.getInputStream());
+        response.handleResponse(this.httpSocket.getInputStream());
 
         HTTPHeader header = response.getHeader();
         HTTPBody responseBody = response.getBody();
