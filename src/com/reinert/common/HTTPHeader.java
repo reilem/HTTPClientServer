@@ -30,4 +30,15 @@ public class HTTPHeader {
     public HTTPStatus getStatus() {
         return status;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        this.fields.forEach((HTTPField field, Object value) -> {
+            s.append(field.toString());
+            s.append(value.toString());
+            s.append(HTTPUtil.NEW_LINE);
+        });
+        return s.toString();
+    }
 }

@@ -37,4 +37,11 @@ public class ContentType {
     public String getCharSet() {
         return charSet;
     }
+
+    @Override
+    public String toString() {
+        String s = type+"/"+extension;
+        if (charSet != null) s += "; charset="+charSet;
+        return s;
+    }
 }

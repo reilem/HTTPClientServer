@@ -4,9 +4,10 @@ public enum HTTPField {
     CONTENT_TYPE("Content-Type"),
     CONTENT_LENGTH("Content-Length"),
     CONNECTION("Connection"),
-    LOCATION("Location");
+    LOCATION("Location"),
+    OTHER("");
 
-    private final String field;
+    private String field;
 
     HTTPField(String field) {
         this.field = field;
@@ -30,13 +31,20 @@ public enum HTTPField {
             case CONTENT_LENGTH: return (obj instanceof Integer);
             case CONTENT_TYPE: return (obj instanceof ContentType);
             case CONNECTION: return (obj instanceof Boolean);
+            case OTHER:
             case LOCATION: return (obj instanceof String);
             default: return true;
         }
     }
 
+    public void setField(String field) {
+        if (this.equals(OTHER)) {
+            this.field = field;
+        }
+    }
+
     @Override
     public String toString() {
-        return this.field;
+        return this.field + ": ";
     }
 }

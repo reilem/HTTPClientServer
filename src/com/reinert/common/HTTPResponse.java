@@ -14,7 +14,8 @@ public class HTTPResponse {
         // Fetch the header from the input stream
         this.header = httpInputStream.getHeader();
         // Get the content length from the header
-        int bufferSize = (Integer)this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
+        Object cLen = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
+        Integer bufferSize = cLen != null ? (Integer)cLen : null;
         // Fetch the body from the input stream
         this.body = httpInputStream.getBody(bufferSize);
     }

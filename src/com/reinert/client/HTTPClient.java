@@ -11,13 +11,13 @@ import java.util.ArrayList;
 
 public class HTTPClient {
 
+    private final String CLIENT_DIR = "res-client";
+
     private final Socket httpSocket;
-    private final String host;
 
     HTTPClient(int port, URI uri) throws IOException {
         // Create socket based on host name provided by uri
-        this.host = uri.getHost();
-        this.httpSocket = new Socket(InetAddress.getByName(this.host), port);
+        this.httpSocket = new Socket(InetAddress.getByName(uri.getHost()), port);
     }
 
     /**
@@ -32,7 +32,7 @@ public class HTTPClient {
 
         // Send request
         String path = uri.getPath();
-        HTTPRequest request = new HTTPRequest(this.host, method, path, protocol, requestBody);
+        HTTPRequest request = new HTTPRequest(uri.getHost(), method, path, protocol, requestBody);
         request.initiateRequest(this.httpSocket.getOutputStream());
 
         HTTPResponse response = new HTTPResponse();
@@ -41,37 +41,46 @@ public class HTTPClient {
         HTTPHeader header = response.getHeader();
         HTTPBody responseBody = response.getBody();
 
-        ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
-        String charSet = contentType.getCharSet();
-        // Parse the received byte array
-        if (contentType.getType().equals("text")) {
-            // Print results
-            System.out.println("Response received...");
-            responseBody.printData(charSet);
-            // If file extension is html
-            if (contentType.getExtension().equals("html")) {
-                // Parse the sources from image tags
-                ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
-                for (String imagePath : extraPaths) {
-                    this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null);
+        // Write out the file
+        responseBody.writeToFile(makeFilePath(uri));
+
+        // Check if redirection is needed
+        if (header.getStatus().equals(HTTPStatus.CODE_302)) {
+            responseBody.printData(null);
+            String location = (String)header.getFieldValue(HTTPField.LOCATION);
+            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null);
+        } else {
+            System.out.println("Response received."+HTTPUtil.NEW_LINE);
+            // Check the content type
+            ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
+            String charSet = contentType.getCharSet();
+            // Parse the received byte array
+            if (contentType.getType().equals("text")) {
+                // Print results
+                responseBody.printData(charSet);
+                // If file extension is html
+                if (contentType.getExtension().equals("html")) {
+                    // Parse the sources from image tags
+                    ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
+                    for (String imagePath : extraPaths) {
+                        this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null);
+                    }
                 }
             }
         }
 
-        // Write out the file
-        String param = uri.getPath();
-        String file = param.equals("/") ? "/index.html" : param;
-        String filePath = "res-client/" + file;
-        responseBody.writeToFile(filePath);
         // Close connection if needed
         Boolean headConnect = (Boolean)header.getFieldValue(HTTPField.CONNECTION);
         Boolean keepAlive = (protocol.equals(HTTPProtocol.HTTP_1_0) && headConnect != null && headConnect) ||
                 (protocol.equals(HTTPProtocol.HTTP_1_1) && (headConnect == null || headConnect));
         if (!keepAlive) {
-            System.out.println("close");
             this.httpSocket.close();
         }
-
     }
 
+    private String makeFilePath(URI uri) {
+        String param = uri.getPath();
+        String file = param.equals("/") ? "/index.html" : param;
+        return CLIENT_DIR + file;
+    }
 }
