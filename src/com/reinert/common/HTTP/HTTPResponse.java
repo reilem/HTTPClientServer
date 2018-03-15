@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 import java.io.IOException;
 import java.io.InputStream;

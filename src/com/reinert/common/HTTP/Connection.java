@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 public enum Connection {
     CLOSE, KEEP_ALIVE;

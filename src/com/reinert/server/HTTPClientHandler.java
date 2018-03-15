@@ -1,6 +1,6 @@
 package com.reinert.server;
 
-import com.reinert.common.HTTPUtil;
+import com.reinert.common.HTTP.HTTPUtil;
 
 import java.io.*;
 import java.net.Socket;

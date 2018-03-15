@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 import javafx.util.Pair;
 

@@ -1,8 +1,8 @@
 package com.reinert.client;
 
-import com.reinert.common.HTTPMethod;
-import com.reinert.common.HTTPProtocol;
-import com.reinert.common.HTTPUtil;
+import com.reinert.common.HTTP.HTTPMethod;
+import com.reinert.common.HTTP.HTTPProtocol;
+import com.reinert.common.HTTP.HTTPUtil;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

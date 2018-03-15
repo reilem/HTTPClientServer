@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 public enum HTTPField {
     CONTENT_TYPE("Content-Type"),

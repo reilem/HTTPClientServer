@@ -1,6 +1,7 @@
 package com.reinert.client;
 
-import com.reinert.common.*;
+import com.reinert.common.HTML.HTMLUtil;
+import com.reinert.common.HTTP.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,7 +30,6 @@ public class HTTPClient {
      */
     public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
-        System.out.println(this.httpSocket.isClosed());
         if (this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 
         // Send request

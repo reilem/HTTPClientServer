@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 public enum HTTPProtocol {
     HTTP_1_1, HTTP_1_0;

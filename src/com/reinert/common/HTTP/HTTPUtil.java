@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 import java.net.MalformedURLException;
 import java.net.URI;

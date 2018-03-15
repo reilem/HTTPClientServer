@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTTP;
 
 public enum HTTPStatus {
     CODE_200("OK"),

@@ -1,4 +1,4 @@
-package com.reinert.common;
+package com.reinert.common.HTML;
 
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
