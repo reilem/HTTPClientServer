@@ -1,18 +1,21 @@
-package com.reinert.common.HTTP;
+package com.reinert.common.HTTP.header;
+
+import com.reinert.common.HTTP.HTTPField;
+import com.reinert.common.HTTP.HTTPProtocol;
+import com.reinert.common.HTTP.HTTPUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HTTPHeader {
+public abstract class HTTPHeader {
 
-    private final HTTPProtocol protocol;
-    private final HTTPStatus status;
+    protected final HTTPProtocol protocol;
+
     private HashMap<HTTPField, Object> fields = new HashMap<>();
     private ArrayList<String> other = new ArrayList<>();
 
-    public HTTPHeader(HTTPProtocol protocol, HTTPStatus status) {
+    HTTPHeader(HTTPProtocol protocol) {
         this.protocol = protocol;
-        this.status = status;
     }
 
     public void addField(HTTPField field, Object value) {
@@ -34,25 +37,21 @@ public class HTTPHeader {
         return protocol;
     }
 
-    public HTTPStatus getStatus() {
-        return status;
-    }
+    abstract String headerTopLine();
 
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        s.append(protocol);
-        s.append(" ");
-        s.append(status);
-        s.append(HTTPUtil.NEW_LINE);
+        s.append(this.headerTopLine());
+        s.append(HTTPUtil.CRLF);
         this.fields.forEach((HTTPField field, Object value) -> {
             s.append(field.toString());
             s.append(value.toString());
-            s.append(HTTPUtil.NEW_LINE);
+            s.append(HTTPUtil.CRLF);
         });
         this.other.forEach((String str) -> {
             s.append(str);
-            s.append(HTTPUtil.NEW_LINE);
+            s.append(HTTPUtil.CRLF);
         });
         return s.toString();
     }

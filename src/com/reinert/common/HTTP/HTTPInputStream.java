@@ -1,5 +1,8 @@
 package com.reinert.common.HTTP;
 
+import com.reinert.common.HTTP.header.HTTPHeader;
+import com.reinert.common.HTTP.header.HTTPRequestHeader;
+import com.reinert.common.HTTP.header.HTTPResponseHeader;
 import javafx.util.Pair;
 
 import java.io.BufferedInputStream;
@@ -15,18 +18,32 @@ public class HTTPInputStream {
         this.inputStream = inputStream;
     }
 
-    public HTTPHeader getHeader() throws IOException {
+    public HTTPResponseHeader getResponseHeader() throws IOException {
         String[] firstLine = getNextLine().split(" ");
         String protocol = firstLine[0].trim();
         int status = Integer.parseInt(firstLine[1]);
-        HTTPHeader header = new HTTPHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
+        HTTPResponseHeader header = new HTTPResponseHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
+        fillHeaderFields(header);
+        return header;
+    }
+
+    public HTTPRequestHeader getRequestHeader() throws IOException {
+        String[] firstLine = getNextLine().split(" ");
+        String method = firstLine[0].trim();
+        String path = firstLine[1].trim();
+        String protocol = firstLine[2].trim();
+        HTTPRequestHeader header = new HTTPRequestHeader(HTTPMethod.parseMethod(method), path, HTTPProtocol.parseProtocol(protocol));
+        fillHeaderFields(header);
+        return header;
+    }
+
+    public void fillHeaderFields(HTTPHeader header) throws IOException {
         Pair<HTTPField, Object> nextEntry;
         while ((nextEntry = getNextHeaderLine()) != null) {
             HTTPField key = nextEntry.getKey();
             Object val = nextEntry.getValue();
             header.addField(key, val);
         }
-        return header;
     }
 
     public HTTPBody getBody(Integer bufferSize) throws IOException {

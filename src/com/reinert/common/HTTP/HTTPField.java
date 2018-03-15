@@ -5,6 +5,7 @@ public enum HTTPField {
     CONTENT_LENGTH("Content-Length"),
     CONNECTION("Connection"),
     LOCATION("Location"),
+    HOST("Host"),
     OTHER("");
 
     private final String field;

@@ -1,31 +1,26 @@
 package com.reinert.common.HTTP;
 
+import com.reinert.common.HTTP.header.HTTPRequestHeader;
+
 import java.io.*;
 
 public class HTTPRequest {
 
-    private final HTTPProtocol protocol;
-    private final HTTPBody body;
-    private final HTTPMethod method;
-    private final String path;
-    private final String host;
+    private HTTPRequestHeader header;
+    private HTTPBody body;
 
-    public HTTPRequest(String host, HTTPMethod method, String path, HTTPProtocol protocol, HTTPBody body) {
-        this.host = host;
-        this.method = method;
-        this.path = path;
-        this.protocol = protocol;
+    public HTTPRequest(HTTPRequestHeader header, HTTPBody body) {
+        this.header = header;
         this.body = body;
     }
 
-    public void initiateRequest(OutputStream output) throws IOException {
+    public void sendRequest(OutputStream output) throws IOException {
         // Create a buffered writer
         BufferedWriter requestOutput = new BufferedWriter(new OutputStreamWriter(output));
-        // Write the main request line to output stream
-        requestOutput.write(makeRequestLine());
-        // If HTTP/1.1 include a host header
-        if (this.protocol.equals(HTTPProtocol.HTTP_1_1)) requestOutput.write(makeHostHeader());
-        if (this.method.requiresBody()) {
+        HTTPMethod method = header.getMethod();
+        // Write the header to the output
+        requestOutput.write(header.toString());
+        if (method.requiresBody()) {
             String requestBody;
             if (this.body == null) requestBody = getUserInput();
             else requestBody = this.body.getAsString(null);
@@ -38,6 +33,10 @@ public class HTTPRequest {
         // Flush the output
         requestOutput.flush();
         System.out.println("Request sent...");
+    }
+
+    public void fetchRequest() {
+
     }
 
     private String getUserInput() throws IOException {
@@ -58,10 +57,6 @@ public class HTTPRequest {
     }
 
     private String makeRequestLine() {
-        return (this.method + " " + this.path + " " + this.protocol + HTTPUtil.CRLF);
-    }
-
-    private String makeHostHeader() {
-        return  ("Host: " + this.host + HTTPUtil.CRLF);
+        return (this.header.getMethod() + " " + this.header.getPath() + " " + this.header.getProtocol() + HTTPUtil.CRLF);
     }
 }

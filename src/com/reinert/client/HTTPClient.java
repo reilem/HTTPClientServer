@@ -2,6 +2,8 @@ package com.reinert.client;
 
 import com.reinert.common.HTML.HTMLUtil;
 import com.reinert.common.HTTP.*;
+import com.reinert.common.HTTP.header.HTTPRequestHeader;
+import com.reinert.common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,20 +36,22 @@ public class HTTPClient {
 
         // Send request
         String path = uri.getPath();
-        HTTPRequest request = new HTTPRequest(uri.getHost(), method, path, protocol, requestBody);
-        request.initiateRequest(this.httpSocket.getOutputStream());
+        HTTPRequestHeader header = new HTTPRequestHeader(protocol, method, path);
+        header.addField(HTTPField.HOST, uri.getHost());
+        HTTPRequest request = new HTTPRequest(header, requestBody);
+        request.sendRequest(this.httpSocket.getOutputStream());
 
         HTTPResponse response = new HTTPResponse();
-        response.handleResponse(this.httpSocket.getInputStream());
+        response.fetchResponse(this.httpSocket.getInputStream());
 
-        HTTPHeader header = response.getHeader();
+        HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
 
         // Write out the file
         responseBody.writeToFile(makeFilePath(uri));
 
         // Check if redirection is needed
-        if (header.getStatus().equals(HTTPStatus.CODE_302)) {
+        if (responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
             String location = (String)header.getFieldValue(HTTPField.LOCATION);
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null);
         } else {
