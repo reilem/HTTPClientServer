@@ -8,14 +8,14 @@ import java.io.IOException;
 
 public abstract class HTTPMessage {
 
-    protected HTTPHeader header;
+    private static final String CHUNKED = "chunked";
+
     HTTPBody body;
 
     public HTTPMessage(){
     }
 
-    public HTTPMessage(HTTPHeader header, HTTPBody body) {
-        this.header = header;
+    public HTTPMessage(HTTPBody body) {
         this.body = body;
     }
 
@@ -27,9 +27,14 @@ public abstract class HTTPMessage {
 
     protected void fetchBody(HTTPInputStream httpInputStream) throws IOException {
         // Get the content length from the header
-        Object cLen = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
-        Integer bufferSize = cLen != null ? (Integer)cLen : null;
-        // Fetch the body from the input stream
-        this.body = httpInputStream.getBody(bufferSize);
+        Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
+        String encoding = (String)this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
+        if (encoding != null && encoding.equals(CHUNKED)) {
+            this.body = httpInputStream.getBody(null);
+        } else if (cLen != null) {
+            this.body = httpInputStream.getBody(cLen);
+        } else {
+            this.body = null;
+        }
     }
 }

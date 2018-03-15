@@ -14,7 +14,7 @@ public class HTTPResponse extends HTTPMessage {
     public HTTPResponse() {}
 
     public HTTPResponse(HTTPResponseHeader header, HTTPBody body) {
-        super(header, body);
+        super(body);
         this.header = header;
     }
 

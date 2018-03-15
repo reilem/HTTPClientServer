@@ -49,7 +49,7 @@ public class HTTPInputStream {
 
     public HTTPBody getBody(Integer bufferSize) throws IOException {
         byte[] bodyData;
-        if (bufferSize != null) bodyData = getSimpleBody(bufferSize);
+        if (bufferSize != null) bodyData = getBufferedBody(bufferSize);
         else bodyData = getChunkBody();
         return new HTTPBody(bodyData);
     }
@@ -66,7 +66,7 @@ public class HTTPInputStream {
         return byteArray.toByteArray();
     }
 
-    private byte[] getSimpleBody(int bufferSize) throws IOException {
+    private byte[] getBufferedBody(int bufferSize) throws IOException {
         byte[] buffer = new byte[bufferSize];
         BufferedInputStream in = new BufferedInputStream(inputStream);
         int length = 0;

@@ -14,7 +14,7 @@ public class HTTPRequest extends HTTPMessage {
     public HTTPRequest() {}
 
     public HTTPRequest(HTTPRequestHeader header, HTTPBody body) {
-        super(header, body);
+        super(body);
         this.header = header;
     }
 

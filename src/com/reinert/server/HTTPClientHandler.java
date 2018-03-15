@@ -53,6 +53,8 @@ public class HTTPClientHandler implements Runnable {
         request.fetchRequest(client.getInputStream());
         HTTPRequestHeader header = request.getHeader();
         HTTPBody body = request.getBody();
+//        System.out.println(header.toString());
+//        System.out.println(Arrays.toString(body != null ? body.getData() : null));
     }
 
     private void handleRequest(String[] httpRequest, BufferedReader requestReader, Writer responseWriter) throws IOException {

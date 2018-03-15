@@ -6,6 +6,7 @@ public enum HTTPField {
     CONNECTION("Connection"),
     LOCATION("Location"),
     HOST("Host"),
+    TRANSFER_ENCODING("Transfer-Encoding"),
     OTHER("");
 
     private final String field;
