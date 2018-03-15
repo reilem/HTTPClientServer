@@ -23,4 +23,11 @@ public class HTTPHeader {
         return fields.get(field);
     }
 
+    public HTTPProtocol getProtocol() {
+        return protocol;
+    }
+
+    public HTTPStatus getStatus() {
+        return status;
+    }
 }
