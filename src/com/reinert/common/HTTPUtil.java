@@ -9,8 +9,6 @@ public abstract class HTTPUtil {
 
     public static final String NEW_LINE = System.getProperty("line.separator");
     public static final String CRLF = "\r\n";
-    public static final char CR = '\r';
-    public static final char LF = '\n';
 
     public static String parseHostName(String uriStr) throws MalformedURLException, URISyntaxException {
         return makeURI(uriStr).getHost();
@@ -22,7 +20,7 @@ public abstract class HTTPUtil {
         else return "/"+path;
     }
 
-    private static URI makeURI(String str) throws URISyntaxException, MalformedURLException {
+    public static URI makeURI(String str) throws URISyntaxException, MalformedURLException {
         URL url = new URL(addHttp(str));
         return new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery());
     }

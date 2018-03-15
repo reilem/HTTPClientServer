@@ -14,7 +14,7 @@ public class HTTPHeader {
     }
 
     public void addField(HTTPField field, Object value) {
-        if (field != null && value != null)
+        if (field != null && value != null && field.isValidValueType(value))
             fields.put(field, value);
     }
 

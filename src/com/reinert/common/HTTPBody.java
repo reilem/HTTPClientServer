@@ -8,6 +8,10 @@ public class HTTPBody {
 
     private final byte[] data;
 
+    public HTTPBody(String text) {
+        this.data = text.getBytes();
+    }
+
     HTTPBody(byte[] data) {
         this.data = data;
     }
@@ -24,5 +28,9 @@ public class HTTPBody {
 
     public void printData(String charSet) throws UnsupportedEncodingException {
         System.out.println(this.getAsString(charSet));
+    }
+
+    public byte[] getData() {
+        return data;
     }
 }

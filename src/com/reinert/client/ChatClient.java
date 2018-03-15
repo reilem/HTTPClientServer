@@ -1,5 +1,9 @@
 package com.reinert.client;
 
+import com.reinert.common.HTTPMethod;
+import com.reinert.common.HTTPProtocol;
+import com.reinert.common.HTTPUtil;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -12,9 +16,9 @@ public class ChatClient {
         String protocol = args[3];
         try {
             // Make a client
-            HTTPClient client = new HTTPClient(port, uri);
+            HTTPClient client = new HTTPClient(port, HTTPUtil.makeURI(uri));
             // Execute its request
-            client.executeRequest(method, uri, protocol, null);
+            client.executeRequest(HTTPMethod.parseMethod(method), HTTPUtil.makeURI(uri), HTTPProtocol.parseProtocol(protocol), null);
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }

@@ -4,13 +4,13 @@ import java.io.*;
 
 public class HTTPRequest {
 
-    private final String host;
-    private final String method;
+    private final HTTPProtocol protocol;
+    private final HTTPBody body;
+    private final HTTPMethod method;
     private final String path;
-    private final String protocol;
-    private final String body;
+    private final String host;
 
-    public HTTPRequest(String host, String method, String path, String protocol, String body) {
+    public HTTPRequest(String host, HTTPMethod method, String path, HTTPProtocol protocol, HTTPBody body) {
         this.host = host;
         this.method = method;
         this.path = path;
@@ -24,11 +24,11 @@ public class HTTPRequest {
         // Write the main request line to output stream
         requestOutput.write(makeRequestLine());
         // If HTTP/1.1 include a host header
-        if (this.protocol.equals("HTTP/1.1")) requestOutput.write(makeHostHeader());
-        if (this.requiresUserInput()) {
+        if (this.protocol.equals(HTTPProtocol.HTTP_1_1)) requestOutput.write(makeHostHeader());
+        if (this.method.requiresBody()) {
             String requestBody;
             if (this.body == null) requestBody = getUserInput();
-            else requestBody = this.body;
+            else requestBody = this.body.getAsString(null);
             requestOutput.write(makeContentHeader(requestBody.getBytes().length));
             requestOutput.write(HTTPUtil.CRLF);
             requestOutput.write(requestBody);
@@ -49,13 +49,7 @@ public class HTTPRequest {
             input.append(nextInput);
             input.append(HTTPUtil.CRLF);
         }
-        System.out.println("Input done.");
-        System.out.println(input);
         return input.toString();
-    }
-
-    private boolean requiresUserInput() {
-        return this.method.matches("POST|PUT");
     }
 
     private String makeContentHeader(int length) {

@@ -18,7 +18,7 @@ public class HTTPInputStream {
         String[] firstLine = getNextLine().split(" ");
         String protocol = firstLine[0];
         int status = Integer.parseInt(firstLine[1]);
-        HTTPHeader header = new HTTPHeader(HTTPProtocol.getProtocolFor(protocol), HTTPStatus.getStatusFor(status));
+        HTTPHeader header = new HTTPHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
         Pair<HTTPField, Object> nextEntry;
         while ((nextEntry = getNextHeaderLine()) != null) {
             header.addField(nextEntry.getKey(), nextEntry.getValue());
