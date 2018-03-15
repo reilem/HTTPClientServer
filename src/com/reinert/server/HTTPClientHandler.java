@@ -1,6 +1,9 @@
 package com.reinert.server;
 
+import com.reinert.common.HTTP.HTTPBody;
 import com.reinert.common.HTTP.HTTPUtil;
+import com.reinert.common.HTTP.header.HTTPRequestHeader;
+import com.reinert.common.HTTP.message.HTTPRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -38,31 +41,18 @@ public class HTTPClientHandler implements Runnable {
     public void run() {
         this.threadName = Thread.currentThread().getName();
         System.out.println("Thread started with client: " + this.threadName);
-        this.handleClient();
-    }
-
-    private void handleClient() {
         try {
-            // Open a response and request reader
-            BufferedReader requestReader = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
-            BufferedWriter responseWriter = new BufferedWriter(new OutputStreamWriter(this.client.getOutputStream()));
-            while (true) {
-                // Read the request
-                String request = this.readRequest(requestReader);
-                if (!request.isEmpty()) {
-                    String[] requestData = request.split(HTTPUtil.CRLF);
-                    this.handleRequest(requestData, requestReader, responseWriter);
-                    if (!this.keepAlive) {
-                        requestReader.close();
-                        responseWriter.close();
-                        client.close();
-                        break;
-                    }
-                }
-            }
+            this.handleClient();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleClient() throws IOException {
+        HTTPRequest request = new HTTPRequest();
+        request.fetchRequest(client.getInputStream());
+        HTTPRequestHeader header = request.getHeader();
+        HTTPBody body = request.getBody();
     }
 
     private void handleRequest(String[] httpRequest, BufferedReader requestReader, Writer responseWriter) throws IOException {

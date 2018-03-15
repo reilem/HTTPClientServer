@@ -4,6 +4,7 @@ import com.reinert.common.HTTP.HTTPBody;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class HTTPRequest extends HTTPMessage {
@@ -23,8 +24,13 @@ public class HTTPRequest extends HTTPMessage {
         System.out.println("Request sent...");
     }
 
-    public void fetchRequest() {
-
+    public void fetchRequest(InputStream inputStream) throws IOException {
+        // Create a http input stream
+        HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
+        // Fetch the header from the input stream
+        this.header = httpInputStream.getRequestHeader();
+        // Fetch the body
+        this.fetchBody(httpInputStream);
     }
 
     @Override
