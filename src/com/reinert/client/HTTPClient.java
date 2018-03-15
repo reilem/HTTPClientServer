@@ -46,11 +46,11 @@ public class HTTPClient {
 
         // Check if redirection is needed
         if (header.getStatus().equals(HTTPStatus.CODE_302)) {
-            responseBody.printData(null);
             String location = (String)header.getFieldValue(HTTPField.LOCATION);
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null);
         } else {
             System.out.println("Response received."+HTTPUtil.NEW_LINE);
+            System.out.println(header.toString());
             // Check the content type
             ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
             String charSet = contentType.getCharSet();

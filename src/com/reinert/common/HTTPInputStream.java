@@ -17,12 +17,18 @@ public class HTTPInputStream {
 
     public HTTPHeader getHeader() throws IOException {
         String[] firstLine = getNextLine().split(" ");
-        String protocol = firstLine[0];
+        String protocol = firstLine[0].trim();
         int status = Integer.parseInt(firstLine[1]);
         HTTPHeader header = new HTTPHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
-        Pair<HTTPField, Object> nextEntry;
+        Pair<Object, Object> nextEntry;
         while ((nextEntry = getNextHeaderLine()) != null) {
-            header.addField(nextEntry.getKey(), nextEntry.getValue());
+            Object key = nextEntry.getKey();
+            Object val = nextEntry.getValue();
+            if (key instanceof HTTPField) {
+                header.addField((HTTPField)key, val);
+            } else {
+                header.addOther((String)key, (String)val);
+            }
         }
         return header;
     }
@@ -58,7 +64,7 @@ public class HTTPInputStream {
         return buffer;
     }
 
-    private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {
+    private Pair<Object, Object> getNextHeaderLine() throws IOException {
         String nextLine = this.getNextLine();
         if (nextLine.equals(HTTPUtil.CRLF)) return null;
         String[] split = nextLine.split(": ");
@@ -68,9 +74,7 @@ public class HTTPInputStream {
             HTTPField f = HTTPField.getFieldFor(headerField);
             return new Pair<>(f, f.parseValueString(headerValue));
         } catch (IllegalArgumentException e) {
-            HTTPField f = HTTPField.OTHER;
-            f.setField(headerField);
-            return new Pair<>(f, headerValue);
+            return new Pair<>(headerField, headerValue);
         }
     }
 

@@ -7,7 +7,7 @@ public enum HTTPField {
     LOCATION("Location"),
     OTHER("");
 
-    private String field;
+    private final String field;
 
     HTTPField(String field) {
         this.field = field;
@@ -31,15 +31,7 @@ public enum HTTPField {
             case CONTENT_LENGTH: return (obj instanceof Integer);
             case CONTENT_TYPE: return (obj instanceof ContentType);
             case CONNECTION: return (obj instanceof Boolean);
-            case OTHER:
-            case LOCATION: return (obj instanceof String);
-            default: return true;
-        }
-    }
-
-    public void setField(String field) {
-        if (this.equals(OTHER)) {
-            this.field = field;
+            default: return (obj instanceof String);
         }
     }
 
