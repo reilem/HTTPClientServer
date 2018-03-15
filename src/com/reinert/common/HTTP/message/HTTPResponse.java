@@ -1,15 +1,24 @@
-package com.reinert.common.HTTP;
+package com.reinert.common.HTTP.message;
 
+import com.reinert.common.HTTP.HTTPBody;
+import com.reinert.common.HTTP.HTTPField;
 import com.reinert.common.HTTP.header.HTTPHeader;
 import com.reinert.common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class HTTPResponse {
+public class HTTPResponse extends HTTPMessage {
 
-    private HTTPResponseHeader header = null;
-    private HTTPBody body = null;
+    private HTTPResponseHeader header;
+    private HTTPBody body;
+
+    public HTTPResponse() {}
+
+    public HTTPResponse(HTTPResponseHeader header, HTTPBody body) {
+        super(header, body);
+        this.header = header;
+    }
 
     public void fetchResponse(InputStream responseInput) throws IOException {
         // Create a http input stream
@@ -27,11 +36,8 @@ public class HTTPResponse {
 
     }
 
+    @Override
     public HTTPResponseHeader getHeader() {
         return header;
-    }
-
-    public HTTPBody getBody() {
-        return body;
     }
 }

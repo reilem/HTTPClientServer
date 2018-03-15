@@ -12,7 +12,7 @@ public class HTTPBody {
         this.data = text.getBytes();
     }
 
-    HTTPBody(byte[] data) {
+    public HTTPBody(byte[] data) {
         this.data = data;
     }
 

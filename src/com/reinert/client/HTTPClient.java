@@ -4,6 +4,8 @@ import com.reinert.common.HTML.HTMLUtil;
 import com.reinert.common.HTTP.*;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 import com.reinert.common.HTTP.header.HTTPResponseHeader;
+import com.reinert.common.HTTP.message.HTTPRequest;
+import com.reinert.common.HTTP.message.HTTPResponse;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -36,7 +38,7 @@ public class HTTPClient {
 
         // Send request
         String path = uri.getPath();
-        HTTPRequestHeader header = new HTTPRequestHeader(protocol, method, path);
+        HTTPRequestHeader header = new HTTPRequestHeader(method, path, protocol);
         header.addField(HTTPField.HOST, uri.getHost());
         HTTPRequest request = new HTTPRequest(header, requestBody);
         request.sendRequest(this.httpSocket.getOutputStream());
