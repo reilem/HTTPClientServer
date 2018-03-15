@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class HTTPClient {
 
-    private final String CLIENT_DIR = "res-client";
+    private static final String CLIENT_DIR = "res-client";
 
     private final Socket httpSocket;
 
@@ -29,6 +29,8 @@ public class HTTPClient {
      */
     public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
+        System.out.println(this.httpSocket.isClosed());
+        if (this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 
         // Send request
         String path = uri.getPath();
@@ -51,30 +53,34 @@ public class HTTPClient {
         } else {
             System.out.println("Response received."+HTTPUtil.NEW_LINE);
             System.out.println(header.toString());
-            // Check the content type
-            ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
-            String charSet = contentType.getCharSet();
-            // Parse the received byte array
-            if (contentType.getType().equals("text")) {
-                // Print results
-                responseBody.printData(charSet);
-                // If file extension is html
-                if (contentType.getExtension().equals("html")) {
-                    // Parse the sources from image tags
-                    ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
-                    for (String imagePath : extraPaths) {
-                        this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null);
-                    }
-                }
-            }
         }
 
         // Close connection if needed
-        Boolean headConnect = (Boolean)header.getFieldValue(HTTPField.CONNECTION);
-        Boolean keepAlive = (protocol.equals(HTTPProtocol.HTTP_1_0) && headConnect != null && headConnect) ||
-                (protocol.equals(HTTPProtocol.HTTP_1_1) && (headConnect == null || headConnect));
+        Connection headConnect = ((Connection)header.getFieldValue(HTTPField.CONNECTION));
+        boolean keepAlive;
+        if (headConnect == null) {
+            keepAlive = protocol.equals(HTTPProtocol.HTTP_1_1);
+        } else {
+            keepAlive = headConnect.keepAlive();
+        }
         if (!keepAlive) {
             this.httpSocket.close();
+        }
+
+        // Check the content type
+        ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
+        String charSet = contentType.getCharSet();
+        if (contentType.getType().equals("text")) {
+            // Print results
+            responseBody.printData(charSet);
+            // If file extension is html
+            if (contentType.getExtension().equals("html") && keepAlive) {
+                // Parse the sources from image tags
+                ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
+                for (String imagePath : extraPaths) {
+                    this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null);
+                }
+            }
         }
     }
 
