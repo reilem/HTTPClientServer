@@ -49,18 +49,6 @@ public class HTTPClient {
 
         HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
-        // Write out the data to file if not null
-        if (responseBody != null) responseBody.writeToFile(makeClientFilePath(uri));
-
-        // Check if redirection is needed
-        if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
-            String location = (String)responseHeader.getFieldValue(HTTPField.LOCATION);
-            System.out.println(responseHeader);
-            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
-        } else {
-            System.out.println("Response received."+HTTPUtil.NEW_LINE);
-            System.out.println(responseHeader.toString());
-        }
 
         // Close connection if needed
         boolean keepAlive = responseHeader.keepConnectionAlive();
@@ -68,28 +56,42 @@ public class HTTPClient {
             this.httpSocket.close();
         }
 
-        if (responseBody != null) {
-            // Check the content type
-            ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
-            String charSet = null;
-            String type = null;
-            String ext = null;
-            if (contentType != null) {
-                charSet = contentType.getCharSet();
-                type = contentType.getType();
-                ext = contentType.getExtension();
-            }
-            // Print results with given charset
-            responseBody.printData(charSet);
-            if (type != null && type.equals("text")) {
-                // If file extension is html
-                if (ext != null && ext.equals("html") && keepAlive) {
-                    // Parse the sources from image tags
-                    ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
-                    for (String imagePath : extraPaths) {
-                        this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
-                    }
+        // Check if redirection is needed
+        if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
+            String location = (String)responseHeader.getFieldValue(HTTPField.LOCATION);
+            if (responseBody != null) responseBody.printData(null);
+            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
+        } else {
+            System.out.println("Response received."+HTTPUtil.NEW_LINE+responseHeader.toString());
+            if (responseBody != null) {
+                // Check the content type
+                ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
+                String charSet = null;
+                String type = null;
+                String ext = null;
+                if (contentType != null) {
+                    charSet = contentType.getCharSet();
+                    type = contentType.getType();
+                    ext = contentType.getExtension();
                 }
+                // Print results with given charset
+                responseBody.printData(charSet);
+                if (type != null && type.equals("text")) {
+                    // Get response as string
+                    String responseText = responseBody.getAsString(charSet);
+                    // If file extension is html
+                    if (ext != null && ext.equals("html") && keepAlive) {
+                        // Parse the sources from image tags
+                        ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseText);
+                        for (String imagePath : extraPaths) {
+                            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
+                        }
+                        responseText = responseText.replaceAll("src=\"/", "src=\"");
+                    }
+                    responseBody = new HTTPBody(responseText);
+                }
+                // Write response body to file
+                responseBody.writeDataToFile(makeClientFilePath(uri));
             }
         }
     }

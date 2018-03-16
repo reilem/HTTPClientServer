@@ -14,7 +14,7 @@ public class HTTPBody {
         this.data = data;
     }
 
-    public void writeToFile(String filePath) throws IOException {
+    public void writeDataToFile(String filePath) throws IOException {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(filePath);

@@ -2,6 +2,7 @@ package com.reinert.common.HTTP;
 
 public enum HTTPStatus {
     CODE_200("OK"),
+    CODE_301("Moved Permanently"),
     CODE_302("Found"),
     CODE_304("Not Modified"),
     CODE_400("Bad Request"),

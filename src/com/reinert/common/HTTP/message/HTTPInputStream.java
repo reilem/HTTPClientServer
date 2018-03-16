@@ -62,7 +62,7 @@ public class HTTPInputStream {
             byteArray.write(next);
             byte[] bytes = byteArray.toByteArray();
             int l = bytes.length;
-            if (l > 5 && bytes[l-4] == 13 && bytes[l-3] == 10 && bytes[l-2] == 13 && bytes[l-1] == 10) break;
+            if (l >= 5 && bytes[l-4] == 13 && bytes[l-3] == 10 && bytes[l-2] == 13 && bytes[l-1] == 10) break;
         }
         return byteArray.toByteArray();
     }

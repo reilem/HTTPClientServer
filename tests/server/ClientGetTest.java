@@ -24,9 +24,29 @@ public class ClientGetTest {
         doGetRequest("www.google.com/");
     }
 
-    private void doGetRequest(String path) {
+    @Test
+    void testWithoutPath() {
+        doGetRequest("www.reddit.com");
+    }
+
+    @Test
+    void testWithStartTwoSlash() {
+        doGetRequest("//www.youtube.com");
+    }
+
+    @Test
+    void testHTTPStart() {
+        doGetRequest("http://www.imgur.com");
+    }
+
+    @Test
+    void testWithoutWWW() {
+        doGetRequest("soundcloud.com");
+    }
+
+    private void doGetRequest(String url) {
         try {
-            URI hostURI = HTTPUtil.makeURI(path);
+            URI hostURI = HTTPUtil.makeURI(url);
             HTTPClient client = new HTTPClient(this.port, hostURI);
             client.executeRequest(HTTPMethod.GET, hostURI, HTTPProtocol.HTTP_1_1, null, null);
         } catch (IOException | URISyntaxException e) {

@@ -20,7 +20,9 @@ public abstract class HTTPUtil {
     }
 
     public static URI makeURI(String str) throws URISyntaxException, MalformedURLException {
-        URL url = new URL(addHttp(str));
+        String httpStr = addHttp(str);
+        if (httpStr.lastIndexOf('/') <= 7) httpStr += '/';
+        URL url = new URL(httpStr);
         return new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery());
     }
 
