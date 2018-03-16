@@ -15,13 +15,8 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
-import static com.reinert.common.HTTP.HTTPMethod.GET;
-import static com.reinert.common.HTTP.HTTPMethod.POST;
-import static com.reinert.common.HTTP.HTTPMethod.PUT;
+import static com.reinert.common.HTTP.HTTPMethod.*;
 
 public class HTTPClientHandler implements Runnable {
 
@@ -76,8 +71,8 @@ public class HTTPClientHandler implements Runnable {
                 if (method.requiresFileData()) {
                     // Fetch file data for HEAD or GET
                     FileData fileData = this.readFileDataFromPath(serverFilePath);
-                    ZonedDateTime checkModifyTime = (ZonedDateTime)requestHeader.getFieldValue(HTTPField.IF_MODIFIED_SINCE);
-                    if (fileData.lastModified.isAfter(checkModifyTime)) {
+                    HTTPTime checkModifyTime = (HTTPTime) requestHeader.getFieldValue(HTTPField.IF_MODIFIED_SINCE);
+                    if (fileData.lastModified.time.isAfter(checkModifyTime.time)) {
                         responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_304);
                         responseHeader.addField(HTTPField.LAST_MODIFIED, fileData.lastModified);
                     } else if (method.equals(GET)) {
@@ -106,6 +101,7 @@ public class HTTPClientHandler implements Runnable {
             }
 
             // Add extra header data
+            responseHeader.addField(HTTPField.DATE, HTTPTime.getCurrentTime());
             // Send response
             HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
             try {
@@ -139,7 +135,7 @@ public class HTTPClientHandler implements Runnable {
         }
         fileReader.close();
         // Calculate last modified date
-        ZonedDateTime lastModified = getTimeFor(f.lastModified());
+        HTTPTime lastModified = new HTTPTime(f.lastModified());
         // Return the file data
         return new FileData(serverFilePath, fileData.toByteArray(), lastModified);
     }
@@ -151,20 +147,6 @@ public class HTTPClientHandler implements Runnable {
         return f;
     }
 
-    private String getCurrentTimeString() {
-        ZonedDateTime date = ZonedDateTime.now(ZoneId.of("GMT"));
-        return date.format(HTTPUtil.dateFormatter);
-    }
-
-    private ZonedDateTime getTimeFor(String timeString) {
-        return ZonedDateTime.parse(timeString, HTTPUtil.dateFormatter);
-    }
-
-    private ZonedDateTime getTimeFor(Long time) {
-        Instant i = Instant.ofEpochMilli(time);
-        return ZonedDateTime.ofInstant(i, ZoneId.of("GMT"));
-    }
-
     private String makeServerFilePath(String path) throws IllegalArgumentException{
         return SERVER_DIR + HTTPUtil.makeFilePathFromPath(path);
     }
@@ -173,9 +155,9 @@ public class HTTPClientHandler implements Runnable {
         final int contentLength;
         final ContentType contentType;
         final byte[] data;
-        final ZonedDateTime lastModified;
+        final HTTPTime lastModified;
 
-        FileData(String filePath, byte[] data, ZonedDateTime lastModified) throws IOException {
+        FileData(String filePath, byte[] data, HTTPTime lastModified) throws IOException {
             this.contentLength = data.length;
             this.data = data;
             this.contentType = ContentType.parseContentTypeFromFile(filePath);

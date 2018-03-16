@@ -15,15 +15,15 @@ public class ChatClientTest {
             HTTPClient client = new HTTPClient(2626, HTTPUtil.makeURI("localhost"));
             HTTPProtocol p = HTTPProtocol.HTTP_1_1;
             // Execute a put request
-            client.executeRequest(HTTPMethod.HEAD, HTTPUtil.makeURI("localhost/"), p, null);
+            client.executeRequest(HTTPMethod.HEAD, HTTPUtil.makeURI("localhost/"), p, null, null);
             // Execute a put request
-            client.executeRequest(HTTPMethod.PUT, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("This is some data to put in a file."));
+            client.executeRequest(HTTPMethod.PUT, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("This is some data to put in a file."), null);
             // Execute a get request
-            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null);
+            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null, null);
             // Execute a post request
-            client.executeRequest(HTTPMethod.POST, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("More data to put in a file!"));
+            client.executeRequest(HTTPMethod.POST, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("More data to put in a file!"), null);
             // Execute a put request
-            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), HTTPProtocol.HTTP_1_0, null);
+            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), HTTPProtocol.HTTP_1_0, null, null);
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }

@@ -4,12 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
 
 public abstract class HTTPUtil {
-
-    // Use DateTimeFormatter for better thread safety
-    public static final DateTimeFormatter dateFormatter = DateTimeFormatter.RFC_1123_DATE_TIME;
 
     public static final String CHUNKED = "chunked";
     public static final String NEW_LINE = System.getProperty("line.separator");

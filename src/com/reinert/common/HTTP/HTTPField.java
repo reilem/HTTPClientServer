@@ -1,11 +1,10 @@
 package com.reinert.common.HTTP;
 
-import java.time.ZonedDateTime;
-
 public enum HTTPField {
     CONTENT_TYPE("Content-Type"),
     CONTENT_LENGTH("Content-Length"),
     CONNECTION("Connection"),
+    DATE("Date"),
     IF_MODIFIED_SINCE("If-Modified-Since"),
     HOST("Host"),
     LAST_MODIFIED("Last-Modified"),
@@ -28,7 +27,7 @@ public enum HTTPField {
             case CONTENT_LENGTH: return Integer.parseInt(str);
             case CONTENT_TYPE: return ContentType.parseContentType(str);
             case CONNECTION: return Connection.parseConnection(str);
-            case IF_MODIFIED_SINCE: return ZonedDateTime.parse(str, HTTPUtil.dateFormatter);
+            case IF_MODIFIED_SINCE: return new HTTPTime(str);
             default: return str;
         }
     }
@@ -38,7 +37,9 @@ public enum HTTPField {
             case CONTENT_LENGTH: return (obj instanceof Integer);
             case CONTENT_TYPE: return (obj instanceof ContentType);
             case CONNECTION: return (obj instanceof Connection);
-            case IF_MODIFIED_SINCE: return (obj instanceof ZonedDateTime);
+            case IF_MODIFIED_SINCE: return (obj instanceof HTTPTime);
+            case LAST_MODIFIED: return (obj instanceof HTTPTime);
+            case DATE: return (obj instanceof HTTPTime);
             default: return (obj instanceof String);
         }
     }

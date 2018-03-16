@@ -11,6 +11,11 @@ public enum Connection {
         }
     }
 
+    static Connection parseConnection(boolean alive) {
+        if (alive) return Connection.KEEP_ALIVE;
+        else return Connection.CLOSE;
+    }
+
     @Override
     public String toString() {
         return this.name().toLowerCase().replace("_", "-");
