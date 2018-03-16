@@ -4,9 +4,7 @@ import com.reinert.common.HTTP.HTTPBody;
 import com.reinert.common.HTTP.HTTPUtil;
 import com.reinert.common.HTTP.header.HTTPHeader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 public class HTTPOutputStream {
@@ -28,8 +26,6 @@ public class HTTPOutputStream {
         // Flush the output
         this.outputStream.flush();
     }
-
-
 
     private void sendLine(String s) throws IOException {
         byte[] bytes = s.getBytes();

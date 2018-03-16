@@ -25,7 +25,7 @@ public class ContentType {
     }
 
     public static ContentType parseContentTypeFromFile(String filePath) throws IOException {
-        System.out.println(Files.probeContentType(Paths.get(filePath)));
+        System.out.println("File type: " + Files.probeContentType(Paths.get(filePath)));
         int index = filePath.lastIndexOf('.');
         if (index != -1) {
             String fileType = filePath.substring(index+1);

@@ -19,12 +19,12 @@ public class HTTPRequest extends HTTPMessage {
 
     public void sendRequest(OutputStream outputStream) throws IOException {
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
+        HTTPBody requestBody = null;
         if (this.header.getMethod().requiresBody()) {
-            HTTPBody requestBody;
             if (body == null) requestBody = getUserInput();
             else requestBody = body;
-            httpOutputStream.sendMessage(this.header, requestBody);
         }
+        httpOutputStream.sendMessage(this.header, requestBody);
         System.out.println("Request sent...");
     }
 

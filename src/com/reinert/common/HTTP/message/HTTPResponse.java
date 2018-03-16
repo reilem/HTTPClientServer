@@ -18,13 +18,13 @@ public class HTTPResponse extends HTTPMessage {
         this.header = header;
     }
 
-    public void fetchResponse(InputStream inputStream) throws IOException {
+    public void fetchResponse(InputStream inputStream, boolean fetchBody) throws IOException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
         this.header = httpInputStream.getResponseHeader();
-        // Fetch the body
-        this.fetchBody(httpInputStream);
+        // Fetch the body if needed
+        if (fetchBody) this.fetchBody(httpInputStream);
     }
 
     public void sendResponse(OutputStream outputStream) throws IOException {

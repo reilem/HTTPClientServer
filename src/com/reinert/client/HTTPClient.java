@@ -38,31 +38,31 @@ public class HTTPClient {
 
         // Send request
         String path = uri.getPath();
-        HTTPRequestHeader header = new HTTPRequestHeader(method, path, protocol);
-        header.addField(HTTPField.HOST, uri.getHost());
-        HTTPRequest request = new HTTPRequest(header, requestBody);
+        HTTPRequestHeader requestHeader = new HTTPRequestHeader(method, path, protocol);
+        requestHeader.addField(HTTPField.HOST, uri.getHost());
+        HTTPRequest request = new HTTPRequest(requestHeader, requestBody);
         request.sendRequest(this.httpSocket.getOutputStream());
 
         HTTPResponse response = new HTTPResponse();
-        response.fetchResponse(this.httpSocket.getInputStream());
+        response.fetchResponse(this.httpSocket.getInputStream(), !requestHeader.getMethod().equals(HTTPMethod.HEAD));
 
         HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
 
-        // Write out the file
-        responseBody.writeToFile(makeClientFilePath(uri));
+        // Write out the data to file if not null
+        if (responseBody != null) responseBody.writeToFile(makeClientFilePath(uri));
 
         // Check if redirection is needed
-        if (responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
-            String location = (String)header.getFieldValue(HTTPField.LOCATION);
+        if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
+            String location = (String)requestHeader.getFieldValue(HTTPField.LOCATION);
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null);
         } else {
             System.out.println("Response received."+HTTPUtil.NEW_LINE);
-            System.out.println(header.toString());
+            System.out.println(responseHeader.toString());
         }
 
         // Close connection if needed
-        Connection headConnect = ((Connection)header.getFieldValue(HTTPField.CONNECTION));
+        Connection headConnect = ((Connection)requestHeader.getFieldValue(HTTPField.CONNECTION));
         boolean keepAlive;
         if (headConnect == null) {
             keepAlive = protocol.equals(HTTPProtocol.HTTP_1_1);
@@ -74,7 +74,8 @@ public class HTTPClient {
         }
 
         // Check the content type
-        ContentType contentType = (ContentType)header.getFieldValue(HTTPField.CONTENT_TYPE);
+        ContentType contentType = (ContentType)requestHeader.getFieldValue(HTTPField.CONTENT_TYPE);
+        if (contentType == null) return;
         String charSet = contentType.getCharSet();
         if (contentType.getType().equals("text")) {
             // Print results

@@ -26,12 +26,12 @@ public abstract class HTTPMessage {
 
     void fetchBody(HTTPInputStream httpInputStream) throws IOException {
         // Get the content length from the header
-        Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
-        String encoding = (String)this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
+        Object cLen = this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
+        Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
         if (encoding != null && encoding.equals(CHUNKED)) {
             this.body = httpInputStream.getBody(null);
         } else if (cLen != null) {
-            this.body = httpInputStream.getBody(cLen);
+            this.body = httpInputStream.getBody((Integer)cLen);
         } else {
             this.body = null;
         }
