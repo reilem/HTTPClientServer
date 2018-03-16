@@ -1,7 +1,8 @@
 package com.reinert.common.HTTP.message;
 
-import com.reinert.common.HTTP.*;
-import com.reinert.common.HTTP.header.HTTPRequestHeader;
+import com.reinert.common.HTTP.HTTPBody;
+import com.reinert.common.HTTP.HTTPUtil;
+import com.reinert.common.HTTP.header.HTTPHeader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,15 +17,11 @@ public class HTTPOutputStream {
         this.outputStream = outputStream;
     }
 
-    public void sendRequest(HTTPRequestHeader header, HTTPBody body) throws IOException {
-        HTTPMethod method = header.getMethod();
+    public void sendMessage(HTTPHeader header, HTTPBody body) throws IOException {
         this.outputStream.write(header.toString().getBytes());
-        if (method.requiresBody()) {
-            byte[] requestBody;
-            if (body == null) requestBody = getUserInput().getBytes();
-            else requestBody = body.getData();
+        if (body != null) {
             this.outputStream.write(HTTPUtil.CRLF.getBytes());
-            this.outputStream.write(requestBody);
+            this.outputStream.write(body.getData());
         }
         // Write final line
         this.outputStream.write(HTTPUtil.CRLF.getBytes());
@@ -32,17 +29,7 @@ public class HTTPOutputStream {
         this.outputStream.flush();
     }
 
-    private String getUserInput() throws IOException {
-        System.out.println("Please input request body:");
-        BufferedReader inputRead = new BufferedReader(new InputStreamReader(System.in));
-        String nextInput;
-        StringBuilder input = new StringBuilder();
-        while (!(nextInput = inputRead.readLine()).equals("")) {
-            input.append(nextInput);
-            input.append(HTTPUtil.CRLF);
-        }
-        return input.toString();
-    }
+
 
     private void sendLine(String s) throws IOException {
         byte[] bytes = s.getBytes();

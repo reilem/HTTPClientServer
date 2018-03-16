@@ -1,5 +1,9 @@
 package com.reinert.common.HTTP;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class ContentType {
 
     private final String type;
@@ -20,7 +24,22 @@ public class ContentType {
         }
     }
 
-    private ContentType(String type, String extension, String charSet) {
+    public static ContentType parseContentTypeFromFile(String filePath) throws IOException {
+        System.out.println(Files.probeContentType(Paths.get(filePath)));
+        int index = filePath.lastIndexOf('.');
+        if (index != -1) {
+            String fileType = filePath.substring(index+1);
+            switch (fileType) {
+                case "html":
+                    return new ContentType("text", "html", "utf-8");
+                case "txt":
+                    return new ContentType("text", "txt", "utf-8");
+            }
+        }
+        return null;
+    }
+
+    public ContentType(String type, String extension, String charSet) {
         this.type = type;
         this.extension = extension;
         this.charSet = charSet;

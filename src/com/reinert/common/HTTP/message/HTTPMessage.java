@@ -12,10 +12,9 @@ public abstract class HTTPMessage {
 
     HTTPBody body;
 
-    public HTTPMessage(){
-    }
+    HTTPMessage() {}
 
-    public HTTPMessage(HTTPBody body) {
+    HTTPMessage(HTTPBody body) {
         this.body = body;
     }
 
@@ -25,7 +24,7 @@ public abstract class HTTPMessage {
         return body;
     }
 
-    protected void fetchBody(HTTPInputStream httpInputStream) throws IOException {
+    void fetchBody(HTTPInputStream httpInputStream) throws IOException {
         // Get the content length from the header
         Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         String encoding = (String)this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);

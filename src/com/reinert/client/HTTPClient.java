@@ -50,7 +50,7 @@ public class HTTPClient {
         HTTPBody responseBody = response.getBody();
 
         // Write out the file
-        responseBody.writeToFile(makeFilePath(uri));
+        responseBody.writeToFile(makeClientFilePath(uri));
 
         // Check if redirection is needed
         if (responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
@@ -90,9 +90,7 @@ public class HTTPClient {
         }
     }
 
-    private String makeFilePath(URI uri) {
-        String param = uri.getPath();
-        String file = param.equals("/") ? "/index.html" : param;
-        return CLIENT_DIR + file;
+    private String makeClientFilePath(URI uri) {
+        return CLIENT_DIR + HTTPUtil.makeFilePathFromURI(uri);
     }
 }

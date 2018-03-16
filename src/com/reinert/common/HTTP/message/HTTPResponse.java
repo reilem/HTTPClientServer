@@ -1,11 +1,11 @@
 package com.reinert.common.HTTP.message;
 
 import com.reinert.common.HTTP.HTTPBody;
-import com.reinert.common.HTTP.header.HTTPHeader;
 import com.reinert.common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class HTTPResponse extends HTTPMessage {
 
@@ -18,17 +18,20 @@ public class HTTPResponse extends HTTPMessage {
         this.header = header;
     }
 
-    public void fetchResponse(InputStream responseInput) throws IOException {
+    public void fetchResponse(InputStream inputStream) throws IOException {
         // Create a http input stream
-        HTTPInputStream httpInputStream = new HTTPInputStream(responseInput);
+        HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
         this.header = httpInputStream.getResponseHeader();
         // Fetch the body
         this.fetchBody(httpInputStream);
     }
 
-    public void sendResponse(HTTPHeader header, HTTPBody body) {
-
+    public void sendResponse(OutputStream outputStream) throws IOException {
+        // Create http output stream
+        HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
+        // Send the response header and body
+        httpOutputStream.sendMessage(this.header, this.body);
     }
 
     @Override

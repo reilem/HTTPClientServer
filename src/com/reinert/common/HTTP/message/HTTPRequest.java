@@ -1,11 +1,10 @@
 package com.reinert.common.HTTP.message;
 
 import com.reinert.common.HTTP.HTTPBody;
+import com.reinert.common.HTTP.HTTPUtil;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class HTTPRequest extends HTTPMessage {
 
@@ -20,7 +19,12 @@ public class HTTPRequest extends HTTPMessage {
 
     public void sendRequest(OutputStream outputStream) throws IOException {
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
-        httpOutputStream.sendRequest(this.header, this.body);
+        if (this.header.getMethod().requiresBody()) {
+            HTTPBody requestBody;
+            if (body == null) requestBody = getUserInput();
+            else requestBody = body;
+            httpOutputStream.sendMessage(this.header, requestBody);
+        }
         System.out.println("Request sent...");
     }
 
@@ -35,4 +39,16 @@ public class HTTPRequest extends HTTPMessage {
 
     @Override
     public HTTPRequestHeader getHeader() { return header; }
+
+    private HTTPBody getUserInput() throws IOException {
+        System.out.println("Please input request body:");
+        BufferedReader inputRead = new BufferedReader(new InputStreamReader(System.in));
+        String nextInput;
+        StringBuilder input = new StringBuilder();
+        while (!(nextInput = inputRead.readLine()).equals("")) {
+            input.append(nextInput);
+            input.append(HTTPUtil.CRLF);
+        }
+        return new HTTPBody(input.toString().getBytes());
+    }
 }

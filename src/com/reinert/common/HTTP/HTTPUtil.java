@@ -10,10 +10,12 @@ public abstract class HTTPUtil {
     public static final String NEW_LINE = System.getProperty("line.separator");
     public static final String CRLF = "\r\n";
 
-    public static String parsePath(String uriStr) throws MalformedURLException, URISyntaxException {
-        String path = makeURI(uriStr).getPath();
-        if (path.startsWith("/")) return path;
-        else return "/"+path;
+    public static String makeFilePathFromURI(URI uri) {
+        return makeFilePathFromPath(uri.getPath());
+    }
+
+    public static String makeFilePathFromPath(String path) {
+        return path.equals("/") ? "/index.html" : path;
     }
 
     public static URI makeURI(String str) throws URISyntaxException, MalformedURLException {
