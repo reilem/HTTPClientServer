@@ -8,7 +8,7 @@ public class HTTPServer {
 
     private final int port;
 
-    HTTPServer(int port) {
+    public HTTPServer(int port) {
         this.port = port;
     }
 

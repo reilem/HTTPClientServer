@@ -28,8 +28,6 @@ public class HTMLUtil extends HTMLEditorKit.ParserCallback {
         return new ArrayList<>();
     }
 
-
-
     @Override
     public void handleSimpleTag(Tag t, MutableAttributeSet a, int pos) {
         if (t.equals(Tag.IMG)) {

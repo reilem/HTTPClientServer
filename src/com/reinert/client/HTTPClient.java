@@ -66,20 +66,28 @@ public class HTTPClient {
         if (!keepAlive) {
             this.httpSocket.close();
         }
-
         // Check the content type
-        ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
-        if (contentType == null) return;
-        String charSet = contentType.getCharSet();
-        if (contentType.getType().equals("text") && responseBody != null) {
-            // Print results
+
+        // Print results
+        if (responseBody != null) {
+            ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
+            String charSet = null;
+            String type = null;
+            String ext = null;
+            if (contentType != null) {
+                charSet = contentType.getCharSet();
+                type = contentType.getType();
+                ext = contentType.getExtension();
+            }
             responseBody.printData(charSet);
-            // If file extension is html
-            if (contentType.getExtension().equals("html") && keepAlive) {
-                // Parse the sources from image tags
-                ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
-                for (String imagePath : extraPaths) {
-                    this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
+            if (type != null && type.equals("text")) {
+                // If file extension is html
+                if (ext != null && ext.equals("html") && keepAlive) {
+                    // Parse the sources from image tags
+                    ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
+                    for (String imagePath : extraPaths) {
+                        this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
+                    }
                 }
             }
         }
