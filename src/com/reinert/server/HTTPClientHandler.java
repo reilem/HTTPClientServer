@@ -71,8 +71,8 @@ public class HTTPClientHandler implements Runnable {
                 if (method.requiresFileData()) {
                     // Fetch file data for HEAD or GET
                     FileData fileData = this.readFileDataFromPath(serverFilePath);
-                    HTTPTime checkModifyTime = (HTTPTime) requestHeader.getFieldValue(HTTPField.IF_MODIFIED_SINCE);
-                    if (fileData.lastModified.time.isAfter(checkModifyTime.time)) {
+                    HTTPTime checkModifyTime = (HTTPTime)requestHeader.getFieldValue(HTTPField.IF_MODIFIED_SINCE);
+                    if (checkModifyTime != null && fileData.lastModified.time.isAfter(checkModifyTime.time)) {
                         responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_304);
                         responseHeader.addField(HTTPField.LAST_MODIFIED, fileData.lastModified);
                     } else if (method.equals(GET)) {
@@ -91,6 +91,7 @@ public class HTTPClientHandler implements Runnable {
             } catch (IllegalArgumentException | InvalidHeaderException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_400);
             } catch (NullPointerException | IOException e) {
+                e.printStackTrace();
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
             } catch (ContentLengthRequiredException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_411);
@@ -102,6 +103,7 @@ public class HTTPClientHandler implements Runnable {
 
             // Add extra header data
             responseHeader.addField(HTTPField.DATE, HTTPTime.getCurrentTime());
+            responseHeader.addField(HTTPField.CONNECTION, Connection.parseConnection(connectionAlive));
             // Send response
             HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
             try {

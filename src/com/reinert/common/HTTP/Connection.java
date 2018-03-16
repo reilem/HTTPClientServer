@@ -11,7 +11,7 @@ public enum Connection {
         }
     }
 
-    static Connection parseConnection(boolean alive) {
+    public static Connection parseConnection(boolean alive) {
         if (alive) return Connection.KEEP_ALIVE;
         else return Connection.CLOSE;
     }
