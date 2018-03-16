@@ -1,4 +1,4 @@
-package com.reinert.common;
+package common;
 
 import com.reinert.common.HTTP.ContentType;
 import org.junit.jupiter.api.Test;

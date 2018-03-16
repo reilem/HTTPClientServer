@@ -37,13 +37,13 @@ public class HTTPClient {
         if (this.httpSocket == null) return;
         if (this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 
-        // Send request
-        String path = uri.getPath();
-        HTTPRequestHeader requestHeader = new HTTPRequestHeader(method, path, protocol);
-        requestHeader.addField(HTTPField.HOST, uri.getHost());
+        // Create request header
+        HTTPRequestHeader requestHeader = new HTTPRequestHeader(method, uri.getPath(), protocol);
+        if (protocol.equals(HTTPProtocol.HTTP_1_1)) requestHeader.addField(HTTPField.HOST, uri.getHost());
+        // Create request object and send it
         HTTPRequest request = new HTTPRequest(requestHeader, requestBody);
         request.sendRequest(this.httpSocket.getOutputStream());
-
+        // Create response object and load in response data
         HTTPResponse response = new HTTPResponse();
         response.fetchResponse(this.httpSocket.getInputStream(), !requestHeader.getMethod().equals(HTTPMethod.HEAD));
 
@@ -66,10 +66,9 @@ public class HTTPClient {
         if (!keepAlive) {
             this.httpSocket.close();
         }
-        // Check the content type
 
-        // Print results
         if (responseBody != null) {
+            // Check the content type
             ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
             String charSet = null;
             String type = null;
@@ -79,6 +78,7 @@ public class HTTPClient {
                 type = contentType.getType();
                 ext = contentType.getExtension();
             }
+            // Print results with given charset
             responseBody.printData(charSet);
             if (type != null && type.equals("text")) {
                 // If file extension is html
