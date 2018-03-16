@@ -56,13 +56,15 @@ public class HTTPClient {
             this.httpSocket.close();
         }
 
+        // Print out the header data
+        System.out.println("Response received."+HTTPUtil.NEW_LINE+responseHeader.toString());
         // Check if redirection is needed
         if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
             String location = (String)responseHeader.getFieldValue(HTTPField.LOCATION);
             if (responseBody != null) responseBody.printData(null);
+            System.out.println("Following redirect...");
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
         } else {
-            System.out.println("Response received."+HTTPUtil.NEW_LINE+responseHeader.toString());
             if (responseBody != null) {
                 // Check the content type
                 ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
@@ -84,6 +86,7 @@ public class HTTPClient {
                         // Parse the sources from image tags
                         ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseText);
                         for (String imagePath : extraPaths) {
+                            System.out.println("Requesting images...");
                             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
                         }
                         responseText = responseText.replaceAll("src=\"/", "src=\"");
