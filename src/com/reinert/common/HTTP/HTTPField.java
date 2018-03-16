@@ -28,6 +28,8 @@ public enum HTTPField {
             case CONTENT_TYPE: return ContentType.parseContentType(str);
             case CONNECTION: return Connection.parseConnection(str);
             case IF_MODIFIED_SINCE: return new HTTPTime(str);
+            case LAST_MODIFIED: return new HTTPTime(str);
+            case DATE: return new HTTPTime(str);
             default: return str;
         }
     }
