@@ -52,11 +52,13 @@ public class HTTPClientHandler implements Runnable {
 
             protocol = requestHeader.getProtocol();
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_200);
+            String serverFilePath = this.makeServerFilePath(HTTPUtil.makeFilePathFromPath(requestHeader.getPath()));
             switch (requestHeader.getMethod()) {
                 case GET:
-                    FileData fileData = this.readFileDataFromPath(requestHeader.getPath());
+                    FileData fileData = this.readFileDataFromPath(serverFilePath);
                     responseBody = new HTTPBody(fileData.data);
                     responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
+                    responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
                     break;
             }
         } catch (IOException e) {
@@ -73,42 +75,35 @@ public class HTTPClientHandler implements Runnable {
         }
     }
 
-    private void appendFileDataToPath(String path, byte[] body) throws IOException {
-        // Get the correct resource path
-        String resourcePath = makeServerFilePath(path);
+    private void appendFileDataToPath(String serverFilePath, byte[] body) throws IOException {
         // Overwrite or create new file at path with body data
-        Files.write(Paths.get(resourcePath), body, StandardOpenOption.APPEND);
+        Files.write(Paths.get(serverFilePath), body, StandardOpenOption.APPEND);
     }
 
-    private void overwriteFileDataToPath(String path, byte[] body) throws IOException {
-        // Get the correct resource path
-        String resourcePath = makeServerFilePath(path);
+    private void overwriteFileDataToPath(String serverFilePath, byte[] body) throws IOException {
         // Overwrite or create new file at path with body data
-        Files.write(Paths.get(resourcePath), body);
+        Files.write(Paths.get(serverFilePath), body);
     }
 
-    private FileData readFileDataFromPath(String path) throws IOException {
+    private FileData readFileDataFromPath(String serverFilePath) throws IOException {
         // Get the file
-        File f = this.getFileFromPath(path);
+        File f = this.getFileFromPath(serverFilePath);
         // Read the data from the file
         FileReader fileReader = new FileReader(f);
         ByteArrayOutputStream fileData = new ByteArrayOutputStream();
         int next;
         while ((next = fileReader.read()) != -1) {
             fileData.write(next);
-            fileData.write(HTTPUtil.CRLF.getBytes());
         }
         fileReader.close();
         // Return the file data
-        return new FileData(path, fileData.toByteArray());
+        return new FileData(serverFilePath, fileData.toByteArray());
     }
 
-    private File getFileFromPath(String path) throws FileNotFoundException {
-        // Make relative file path from given path (in case it is in absolute form)
-        String resourcePath = makeServerFilePath(path);
+    private File getFileFromPath(String serverFilePath) throws FileNotFoundException {
         // Find the file and check if it exists
-        File f = new File(resourcePath);
-        if (!f.exists() || f.isDirectory()) throw new FileNotFoundException("File not found or is a directory " + path);
+        File f = new File(serverFilePath);
+        if (!f.exists() || f.isDirectory()) throw new FileNotFoundException("File not found or is a directory " + serverFilePath);
         return f;
     }
 
@@ -126,7 +121,7 @@ public class HTTPClientHandler implements Runnable {
     }
 
     private class FileData {
-        final long contentLength;
+        final int contentLength;
         final ContentType contentType;
         final byte[] data;
 

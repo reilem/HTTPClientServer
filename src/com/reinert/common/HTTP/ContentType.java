@@ -25,16 +25,10 @@ public class ContentType {
     }
 
     public static ContentType parseContentTypeFromFile(String filePath) throws IOException {
-        System.out.println("File type: " + Files.probeContentType(Paths.get(filePath)));
-        int index = filePath.lastIndexOf('.');
-        if (index != -1) {
-            String fileType = filePath.substring(index+1);
-            switch (fileType) {
-                case "html":
-                    return new ContentType("text", "html", "utf-8");
-                case "txt":
-                    return new ContentType("text", "txt", "utf-8");
-            }
+        String mimeType = Files.probeContentType(Paths.get(filePath));
+        String[] split = mimeType.split("/");
+        if (split.length >= 2) {
+            return new ContentType(split[0], split[1], null);
         }
         return null;
     }
