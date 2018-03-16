@@ -21,7 +21,7 @@ public class HTTPClient {
 
     private final Socket httpSocket;
 
-    HTTPClient(int port, URI uri) throws IOException {
+    public HTTPClient(int port, URI uri) throws IOException {
         // Create socket based on host name provided by uri
         this.httpSocket = new Socket(InetAddress.getByName(uri.getHost()), port);
     }
@@ -54,7 +54,8 @@ public class HTTPClient {
 
         // Check if redirection is needed
         if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
-            String location = (String)requestHeader.getFieldValue(HTTPField.LOCATION);
+            String location = (String)responseHeader.getFieldValue(HTTPField.LOCATION);
+            System.out.println(responseHeader);
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
         } else {
             System.out.println("Response received."+HTTPUtil.NEW_LINE);

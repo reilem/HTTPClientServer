@@ -1,8 +1,6 @@
 package com.reinert.common.HTTP;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 public class HTTPBody {
 
@@ -17,7 +15,13 @@ public class HTTPBody {
     }
 
     public void writeToFile(String filePath) throws IOException {
-        FileOutputStream fos = new FileOutputStream(filePath);
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(filePath);
+        } catch (FileNotFoundException e) {
+            File newFile = new File(filePath);
+            if (newFile.getParentFile().mkdirs()) fos = new FileOutputStream(filePath);
+        }
         fos.write(data);
     }
 
