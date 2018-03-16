@@ -53,18 +53,32 @@ public class HTTPClientHandler implements Runnable {
             protocol = requestHeader.getProtocol();
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_200);
             String serverFilePath = this.makeServerFilePath(HTTPUtil.makeFilePathFromPath(requestHeader.getPath()));
+            FileData fileData;
             switch (requestHeader.getMethod()) {
                 case GET:
-                    FileData fileData = this.readFileDataFromPath(serverFilePath);
+                    fileData = this.readFileDataFromPath(serverFilePath);
                     responseBody = new HTTPBody(fileData.data);
                     responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
                     responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
                     break;
+                case HEAD:
+                    fileData = this.readFileDataFromPath(serverFilePath);
+                    responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
+                    responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
+                    break;
+                case PUT:
+                    overwriteFileDataToPath(serverFilePath, requestBody.getData());
+                    break;
+                case POST:
+                    appendFileDataToPath(serverFilePath, requestBody.getData());
+                    break;
             }
-        } catch (IOException e) {
-            responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
+        } catch (FileNotFoundException e) {
+            responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_404);
         } catch (IllegalArgumentException e) {
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_400);
+        } catch (IOException e) {
+            responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
         }
 
         HTTPResponse response = new HTTPResponse(responseHeader, responseBody);

@@ -17,6 +17,15 @@ public class HTTPRequest extends HTTPMessage {
         this.header = header;
     }
 
+    public void fetchRequest(InputStream inputStream) throws IOException {
+        // Create a http input stream
+        HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
+        // Fetch the header from the input stream
+        this.header = httpInputStream.getRequestHeader();
+        // Fetch the body
+        this.fetchBody(httpInputStream);
+    }
+
     public void sendRequest(OutputStream outputStream) throws IOException {
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
         HTTPBody requestBody = null;
@@ -26,15 +35,6 @@ public class HTTPRequest extends HTTPMessage {
         }
         httpOutputStream.sendMessage(this.header, requestBody);
         System.out.println("Request sent...");
-    }
-
-    public void fetchRequest(InputStream inputStream) throws IOException {
-        // Create a http input stream
-        HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
-        // Fetch the header from the input stream
-        this.header = httpInputStream.getRequestHeader();
-        // Fetch the body
-        this.fetchBody(httpInputStream);
     }
 
     @Override
