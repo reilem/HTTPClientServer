@@ -1,4 +1,4 @@
-package com.reinert.common.HTTP;
+package com.reinert.common.HTTP.exceptions;
 
 public class ContentLengthRequiredException extends Exception {
 }

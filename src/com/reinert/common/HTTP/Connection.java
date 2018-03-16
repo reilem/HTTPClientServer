@@ -11,10 +11,6 @@ public enum Connection {
         }
     }
 
-    public boolean keepAlive() {
-        return !this.equals(CLOSE);
-    }
-
     @Override
     public String toString() {
         return this.name().toLowerCase().replace("_", "-");

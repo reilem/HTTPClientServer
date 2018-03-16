@@ -1,6 +1,8 @@
 package com.reinert.common.HTTP.message;
 
 import com.reinert.common.HTTP.*;
+import com.reinert.common.HTTP.exceptions.ContentLengthRequiredException;
+import com.reinert.common.HTTP.exceptions.MethodNotImplementedException;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 
 import java.io.*;
@@ -16,7 +18,7 @@ public class HTTPRequest extends HTTPMessage {
         this.header = header;
     }
 
-    public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException {
+    public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException, MethodNotImplementedException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream

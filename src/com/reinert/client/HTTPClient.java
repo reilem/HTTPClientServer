@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class HTTPClient {
 
@@ -32,7 +33,7 @@ public class HTTPClient {
      * @param protocol      the HTTP protocol to be used
      * @param requestBody   the requestBody of the request, must include CRLF characters as newlines
      */
-    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody) throws IOException, URISyntaxException {
+    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody, HashMap<HTTPField, Object> extraHeaderFields) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
         if (this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 
@@ -54,20 +55,14 @@ public class HTTPClient {
         // Check if redirection is needed
         if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
             String location = (String)requestHeader.getFieldValue(HTTPField.LOCATION);
-            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null);
+            this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
         } else {
             System.out.println("Response received."+HTTPUtil.NEW_LINE);
             System.out.println(responseHeader.toString());
         }
 
         // Close connection if needed
-        Connection headConnect = ((Connection)requestHeader.getFieldValue(HTTPField.CONNECTION));
-        boolean keepAlive;
-        if (headConnect == null) {
-            keepAlive = protocol.equals(HTTPProtocol.HTTP_1_1);
-        } else {
-            keepAlive = headConnect.keepAlive();
-        }
+        boolean keepAlive = responseHeader.keepConnectionAlive();
         if (!keepAlive) {
             this.httpSocket.close();
         }
@@ -84,7 +79,7 @@ public class HTTPClient {
                 // Parse the sources from image tags
                 ArrayList<String> extraPaths = HTMLUtil.getImageURLs(responseBody.getAsString(charSet));
                 for (String imagePath : extraPaths) {
-                    this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null);
+                    this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(uri.getHost()+"/"+imagePath), protocol, null, null);
                 }
             }
         }

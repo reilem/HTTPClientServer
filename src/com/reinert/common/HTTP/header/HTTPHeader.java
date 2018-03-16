@@ -1,5 +1,6 @@
 package com.reinert.common.HTTP.header;
 
+import com.reinert.common.HTTP.Connection;
 import com.reinert.common.HTTP.HTTPField;
 import com.reinert.common.HTTP.HTTPProtocol;
 import com.reinert.common.HTTP.HTTPUtil;
@@ -18,6 +19,8 @@ public abstract class HTTPHeader {
         this.protocol = protocol;
     }
 
+    abstract String headerTopLine();
+
     public void addField(HTTPField field, Object value) {
         assert field != null;
         if (!field.equals(HTTPField.OTHER) && value != null && field.isValidValueType(value)) {
@@ -25,7 +28,6 @@ public abstract class HTTPHeader {
         } else {
             other.add((String)value);
         }
-
     }
 
     public Object getFieldValue(HTTPField field) {
@@ -37,7 +39,11 @@ public abstract class HTTPHeader {
         return protocol;
     }
 
-    abstract String headerTopLine();
+    public boolean keepConnectionAlive() {
+        Connection connection = (Connection)this.getFieldValue(HTTPField.CONNECTION);
+        return (protocol.equals(HTTPProtocol.HTTP_1_1) && (connection == null || connection.equals(Connection.KEEP_ALIVE))) ||
+                (protocol.equals(HTTPProtocol.HTTP_1_0) && connection != null && connection.equals(Connection.KEEP_ALIVE));
+    }
 
     @Override
     public String toString() {
