@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 
 public class ClientGetTest {
 
-    private final int port = 80;
-
     @Test
     void tinyOSGetTest() {
         ClientTestUtil.doGetRequest("www.tinyos.net/");
