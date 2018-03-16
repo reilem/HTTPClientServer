@@ -10,4 +10,6 @@ public enum HTTPMethod {
     public boolean requiresBody() {
         return this.equals(PUT) || this.equals(POST);
     }
+
+    public boolean requiresFileData() { return this.equals(GET) || this.equals(HEAD); }
 }

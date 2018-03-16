@@ -29,7 +29,6 @@ public class HTTPServer {
                 Thread clientThread = new Thread(handler);
                 clientThread.start();
             }
-
             System.out.println("Server timed out.");
         } catch (IOException e) {
             e.printStackTrace();

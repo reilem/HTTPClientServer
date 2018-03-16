@@ -2,13 +2,12 @@ package com.reinert.common.HTTP.message;
 
 import com.reinert.common.HTTP.HTTPBody;
 import com.reinert.common.HTTP.HTTPField;
+import com.reinert.common.HTTP.HTTPUtil;
 import com.reinert.common.HTTP.header.HTTPHeader;
 
 import java.io.IOException;
 
 public abstract class HTTPMessage {
-
-    private static final String CHUNKED = "chunked";
 
     HTTPBody body;
 
@@ -24,11 +23,11 @@ public abstract class HTTPMessage {
         return body;
     }
 
-    void fetchBody(HTTPInputStream httpInputStream) throws IOException {
+    public void fetchBody(HTTPInputStream httpInputStream) throws IOException {
         // Get the content length from the header
         Object cLen = this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
-        if (encoding != null && encoding.equals(CHUNKED)) {
+        if (encoding != null && encoding.equals(HTTPUtil.CHUNKED)) {
             this.body = httpInputStream.getBody(null);
         } else if (cLen != null) {
             this.body = httpInputStream.getBody((Integer)cLen);

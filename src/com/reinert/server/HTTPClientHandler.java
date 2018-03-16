@@ -15,6 +15,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static com.reinert.common.HTTP.HTTPMethod.POST;
+import static com.reinert.common.HTTP.HTTPMethod.PUT;
+
 public class HTTPClientHandler implements Runnable {
     // Use DateTimeFormatter for better thread safety
     private static final DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
@@ -53,32 +56,27 @@ public class HTTPClientHandler implements Runnable {
             protocol = requestHeader.getProtocol();
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_200);
             String serverFilePath = this.makeServerFilePath(HTTPUtil.makeFilePathFromPath(requestHeader.getPath()));
-            FileData fileData;
-            switch (requestHeader.getMethod()) {
-                case GET:
-                    fileData = this.readFileDataFromPath(serverFilePath);
-                    responseBody = new HTTPBody(fileData.data);
-                    responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
-                    responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
-                    break;
-                case HEAD:
-                    fileData = this.readFileDataFromPath(serverFilePath);
-                    responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
-                    responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
-                    break;
-                case PUT:
-                    overwriteFileDataToPath(serverFilePath, requestBody.getData());
-                    break;
-                case POST:
-                    appendFileDataToPath(serverFilePath, requestBody.getData());
-                    break;
+            HTTPMethod method = requestHeader.getMethod();
+            if (method.requiresFileData()) {
+                FileData fileData = this.readFileDataFromPath(serverFilePath);
+                responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
+                responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
+                if (method.equals(HTTPMethod.GET)) responseBody = new HTTPBody(fileData.data);
+            } else if (method.requiresBody()) {
+                if (serverFilePath.equals(SERVER_DIR+"/index.html")) throw new AccessForbiddenException();
+                if (method.equals(PUT)) overwriteFileDataToPath(serverFilePath, requestBody.getData());
+                else if (method.equals(POST)) appendFileDataToPath(serverFilePath, requestBody.getData());
             }
         } catch (FileNotFoundException e) {
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_404);
         } catch (IllegalArgumentException e) {
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_400);
-        } catch (IOException e) {
+        } catch (NullPointerException | IOException e) {
             responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
+        } catch (ContentLengthRequiredException e) {
+            responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_411);
+        } catch (AccessForbiddenException e) {
+            responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_403);
         }
 
         HTTPResponse response = new HTTPResponse(responseHeader, responseBody);

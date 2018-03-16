@@ -20,6 +20,7 @@ public class HTTPOutputStream {
         if (body != null) {
             this.outputStream.write(HTTPUtil.CRLF.getBytes());
             this.outputStream.write(body.getData());
+            this.outputStream.write(HTTPUtil.CRLF.getBytes());
         }
         // Write final line
         this.outputStream.write(HTTPUtil.CRLF.getBytes());

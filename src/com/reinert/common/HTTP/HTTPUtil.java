@@ -7,6 +7,7 @@ import java.net.URL;
 
 public abstract class HTTPUtil {
 
+    public static final String CHUNKED = "chunked";
     public static final String NEW_LINE = System.getProperty("line.separator");
     public static final String CRLF = "\r\n";
 

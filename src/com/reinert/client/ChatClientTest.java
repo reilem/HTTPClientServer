@@ -18,12 +18,12 @@ public class ChatClientTest {
             client.executeRequest(HTTPMethod.HEAD, HTTPUtil.makeURI("localhost/"), p, null);
             // Execute a put request
             client.executeRequest(HTTPMethod.PUT, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("This is some data to put in a file."));
-            // Execute a get request
-            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null);
-            // Execute a post request
-            client.executeRequest(HTTPMethod.POST, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("More data to put in a file!"));
-            // Execute a put request
-            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null);
+//            // Execute a get request
+//            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null);
+//            // Execute a post request
+//            client.executeRequest(HTTPMethod.POST, HTTPUtil.makeURI("localhost/test.txt"), p, new HTTPBody("More data to put in a file!"));
+//            // Execute a put request
+//            client.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI("localhost/test.txt"), p, null);
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
