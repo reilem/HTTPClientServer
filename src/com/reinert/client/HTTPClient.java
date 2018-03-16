@@ -48,7 +48,6 @@ public class HTTPClient {
 
         HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
-
         // Write out the data to file if not null
         if (responseBody != null) responseBody.writeToFile(makeClientFilePath(uri));
 
@@ -74,10 +73,10 @@ public class HTTPClient {
         }
 
         // Check the content type
-        ContentType contentType = (ContentType)requestHeader.getFieldValue(HTTPField.CONTENT_TYPE);
+        ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
         if (contentType == null) return;
         String charSet = contentType.getCharSet();
-        if (contentType.getType().equals("text")) {
+        if (contentType.getType().equals("text") && responseBody != null) {
             // Print results
             responseBody.printData(charSet);
             // If file extension is html
