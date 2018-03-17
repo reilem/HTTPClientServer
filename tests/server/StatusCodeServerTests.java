@@ -23,11 +23,12 @@ class StatusCodeServerTests {
     private ByteArrayOutputStream outContent;
 
     @BeforeEach
-    void serverSetup() {
+    void serverSetup() throws InterruptedException {
         this.outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
+        while (server.notReady()) Thread.sleep(100);
     }
 
     @AfterEach

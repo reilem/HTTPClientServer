@@ -13,6 +13,8 @@ public class HTTPServer {
         serverThread.start();
     }
 
+    public boolean notReady() { return !server.isRunning(); }
+
     public void stop() {
         server.stopServer();
     }

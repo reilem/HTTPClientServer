@@ -36,22 +36,22 @@ public class HTTPPooledServer implements Runnable {
     }
 
     synchronized void stopServer() {
-        this.running = false;
         try {
             this.serverSocket.close();
+            this.running = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private synchronized boolean isRunning() {
+    synchronized boolean isRunning() {
         return this.running;
     }
 
     private synchronized void startServer() {
-        this.running = true;
         try {
             this.serverSocket = new ServerSocket(this.port);
+            this.running = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
