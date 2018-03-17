@@ -34,6 +34,7 @@ class StatusCodeServerTests {
     @AfterEach
     void serverShutdown() {
         this.server.stop();
+        System.setOut(System.out);
     }
 
     @Test

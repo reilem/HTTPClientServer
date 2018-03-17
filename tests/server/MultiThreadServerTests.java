@@ -71,10 +71,7 @@ public class MultiThreadServerTests {
 
     @Test
     void dDosTest() {
-        for (int i = 0; i < 2; i++) {
-            System.out.println("Connection attempt " + i);
-            ServerTestUtil.createAndExecuteThreadedClient(HTTPMethod.GET, "localhost", HTTPProtocol.HTTP_1_1, null, null);
-        }
+        ServerTestUtil.createAndExecuteThreadedClient(HTTPMethod.GET, "localhost", HTTPProtocol.HTTP_1_1, null, null);
     }
 
 }
