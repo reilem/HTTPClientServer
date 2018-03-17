@@ -27,9 +27,9 @@ public abstract class HTTPUtil {
     }
 
     private static String addHttp(String str) {
+        if (str.startsWith("https://") || str.startsWith("http://")) return str;
         if (str.startsWith("//")) return "http:"+str;
-        if (!str.startsWith("http://")) return "http://"+str;
-        return str;
+        return "http://"+str;
     }
 }
 

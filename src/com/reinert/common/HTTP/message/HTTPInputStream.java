@@ -48,14 +48,7 @@ public class HTTPInputStream {
         }
     }
 
-    public HTTPBody getBody(Integer bufferSize) throws IOException {
-        byte[] bodyData;
-        if (bufferSize != null) bodyData = getBufferedBody(bufferSize);
-        else bodyData = getChunkBody();
-        return new HTTPBody(bodyData);
-    }
-
-    private byte[] getChunkBody() throws IOException {
+    public HTTPBody getChunkedBody() throws IOException {
         int next;
         ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
         while ((next = inputStream.read()) != -1) {
@@ -64,10 +57,10 @@ public class HTTPInputStream {
             int l = bytes.length;
             if (l >= 5 && bytes[l-4] == 13 && bytes[l-3] == 10 && bytes[l-2] == 13 && bytes[l-1] == 10) break;
         }
-        return byteArray.toByteArray();
+        return new HTTPBody(byteArray.toByteArray());
     }
 
-    private byte[] getBufferedBody(int bufferSize) throws IOException {
+    public HTTPBody getBufferedBody(int bufferSize) throws IOException {
         byte[] buffer = new byte[bufferSize];
         BufferedInputStream in = new BufferedInputStream(inputStream);
         int length = 0;
@@ -76,7 +69,7 @@ public class HTTPInputStream {
             if (nextByteLen == -1) break;
             length += nextByteLen;
         }
-        return buffer;
+        return new HTTPBody(buffer);
     }
 
     private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {

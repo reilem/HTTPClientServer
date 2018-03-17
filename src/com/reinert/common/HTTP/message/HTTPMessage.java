@@ -23,14 +23,14 @@ public abstract class HTTPMessage {
         return body;
     }
 
-    public void fetchBody(HTTPInputStream httpInputStream) throws IOException {
+    void fetchBody(HTTPInputStream httpInputStream) throws IOException {
         // Get the content length from the header
-        Object cLen = this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
+        Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
         if (encoding != null && encoding.equals(HTTPUtil.CHUNKED)) {
-            this.body = httpInputStream.getBody(null);
+            this.body = httpInputStream.getChunkedBody();
         } else if (cLen != null) {
-            this.body = httpInputStream.getBody((Integer)cLen);
+            this.body = httpInputStream.getBufferedBody(cLen);
         } else {
             this.body = null;
         }

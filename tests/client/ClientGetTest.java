@@ -16,21 +16,21 @@ public class ClientGetTest {
 
     @Test
     void testWithoutPath() {
-        ClientTestUtil.doGetRequest("www.reddit.com");
+        ClientTestUtil.doGetRequest("www.tcpipguide.com");
     }
 
     @Test
     void testWithStartTwoSlash() {
-        ClientTestUtil.doGetRequest("//www.youtube.com");
+        ClientTestUtil.doGetRequest("//www.jmarshall.com");
     }
 
     @Test
     void testHTTPStart() {
-        ClientTestUtil.doGetRequest("http://www.imgur.com");
+        ClientTestUtil.doGetRequest("http://www.tldp.org");
     }
 
     @Test
     void testWithoutWWW() {
-        ClientTestUtil.doGetRequest("soundcloud.com");
+        ClientTestUtil.doGetRequest("linux-ip.net");
     }
 }

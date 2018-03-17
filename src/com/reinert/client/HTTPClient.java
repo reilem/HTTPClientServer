@@ -58,8 +58,10 @@ public class HTTPClient {
 
         // Print out the header data
         System.out.println("Response received."+HTTPUtil.NEW_LINE+responseHeader.toString());
+        // Get the status of the response
+        HTTPStatus status = responseHeader.getStatus();
         // Check if redirection is needed
-        if (requestHeader.getMethod().equals(HTTPMethod.GET) && responseHeader.getStatus().equals(HTTPStatus.CODE_302)) {
+        if (requestHeader.getMethod().equals(HTTPMethod.GET) && status.equals(HTTPStatus.CODE_302)) {
             String location = (String)responseHeader.getFieldValue(HTTPField.LOCATION);
             if (responseBody != null) responseBody.printData(null);
             System.out.println("Following redirect...");
@@ -78,7 +80,7 @@ public class HTTPClient {
                 }
                 // Print results with given charset
                 responseBody.printData(charSet);
-                if (type != null && type.equals("text")) {
+                if (type != null && type.equals("text") && !status.equals(HTTPStatus.CODE_404)) {
                     // Get response as string
                     String responseText = responseBody.getAsString(charSet);
                     // If file extension is html
