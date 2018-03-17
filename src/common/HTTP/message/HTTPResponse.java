@@ -38,7 +38,7 @@ public class HTTPResponse extends HTTPMessage {
         // Create http output stream
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
         // Send the response header and body
-        httpOutputStream.sendMessage(this.header, this.body);
+        httpOutputStream.sendMessage(this);
     }
 
     private void fetchResponseHeader(HTTPInputStream httpInputStream) throws IOException {

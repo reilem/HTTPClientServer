@@ -22,6 +22,7 @@ public class HTTPInputStream {
 
     /**
      * Constructor for a HTTPInputStream.
+     * @param inputStream The input stream from which all data will be read
      */
     HTTPInputStream(InputStream inputStream) {
         this.inputStream = inputStream;

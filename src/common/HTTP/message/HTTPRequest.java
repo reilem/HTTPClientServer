@@ -42,7 +42,7 @@ public class HTTPRequest extends HTTPMessage {
         // Create http output stream
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
         // Send message via the stream
-        httpOutputStream.sendMessage(this.header, this.body);
+        httpOutputStream.sendMessage(this);
         System.out.println("Request sent...");
     }
 
