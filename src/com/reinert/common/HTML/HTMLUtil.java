@@ -14,18 +14,13 @@ public class HTMLUtil extends HTMLEditorKit.ParserCallback {
 
     private ArrayList<String> resources = new ArrayList<>();
 
-    public static ArrayList<String> getImageURLs(String data) {
+    public static ArrayList<String> getImageURLs(String data) throws IOException {
         HTMLEditorKit.Parser parseDel = new ParserDelegator();
         Reader r = new StringReader(data);
-        try {
-            HTMLUtil util = new HTMLUtil();
-            parseDel.parse(r, util, true);
-            r.close();
-            return util.resources;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new ArrayList<>();
+        HTMLUtil util = new HTMLUtil();
+        parseDel.parse(r, util, true);
+        r.close();
+        return util.resources;
     }
 
     @Override

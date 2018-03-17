@@ -36,10 +36,14 @@ public class HTTPClientHandler implements Runnable {
     public void run() {
         this.threadName = Thread.currentThread().getName();
         System.out.println(this.threadName + ": handling client.");
-        this.handleClient();
+        try {
+            this.handleClient();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void handleClient() {
+    private void handleClient() throws IOException {
         boolean connectionAlive = true;
         while (connectionAlive) {
             HTTPResponseHeader responseHeader;
@@ -113,11 +117,7 @@ public class HTTPClientHandler implements Runnable {
             responseHeader.addField(HTTPField.CONNECTION, Connection.parseConnection(connectionAlive));
             // Send response
             HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
-            try {
-                response.sendResponse(client.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            response.sendResponse(client.getOutputStream());
         }
         System.out.println("Connection closed.");
     }
