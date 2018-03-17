@@ -10,10 +10,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 
+/**
+ * A class containing HTML parsing utilities. Extends HTMLEditorKit.ParserCallback.
+ */
 public class HTMLUtil extends HTMLEditorKit.ParserCallback {
 
+    // Stores an arrayList of found resources during parsing
     private ArrayList<String> resources = new ArrayList<>();
 
+    /**
+     * Finds all image source urls contained in given html string.
+     * @param data          HTML data given as string.
+     * @return              An arrayList of all image source urls.
+     * @throws IOException  If something goes wrong during IO.
+     */
     public static ArrayList<String> getImageURLs(String data) throws IOException {
         HTMLEditorKit.Parser parseDel = new ParserDelegator();
         Reader r = new StringReader(data);
