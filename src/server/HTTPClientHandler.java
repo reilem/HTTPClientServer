@@ -1,7 +1,5 @@
 package server;
 
-import com.reinert.common.HTTP.*;
-import com.reinert.common.HTTP.exceptions.*;
 import common.HTTP.*;
 import common.HTTP.exceptions.*;
 import common.HTTP.header.HTTPRequestHeader;

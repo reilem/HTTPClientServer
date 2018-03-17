@@ -1,6 +1,5 @@
 package common.HTTP.message;
 
-import com.reinert.common.HTTP.*;
 import common.HTTP.*;
 import common.HTTP.header.HTTPHeader;
 import common.HTTP.header.HTTPRequestHeader;

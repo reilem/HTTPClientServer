@@ -1,6 +1,5 @@
 package common.HTTP.message;
 
-import com.reinert.common.HTTP.*;
 import common.HTTP.HTTPBody;
 import common.HTTP.HTTPField;
 import common.HTTP.HTTPMethod;

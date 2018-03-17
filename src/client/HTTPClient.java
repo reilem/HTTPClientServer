@@ -1,7 +1,6 @@
 package client;
 
 import common.HTML.HTMLUtil;
-import com.reinert.common.HTTP.*;
 import common.HTTP.header.HTTPRequestHeader;
 import common.HTTP.header.HTTPResponseHeader;
 import common.HTTP.message.HTTPRequest;
