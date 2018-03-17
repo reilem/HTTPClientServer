@@ -19,9 +19,10 @@ public class MultiThreadServerTests {
     private HTTPServer server;
 
     @BeforeEach
-    void serverSetup() {
+    void serverSetup() throws InterruptedException {
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
+        while (server.notReady()) Thread.sleep(100);
     }
 
     @AfterEach
