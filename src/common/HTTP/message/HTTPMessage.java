@@ -2,6 +2,7 @@ package common.HTTP.message;
 
 import common.HTTP.HTTPBody;
 import common.HTTP.HTTPField;
+import common.HTTP.HTTPProtocol;
 import common.HTTP.HTTPUtil;
 import common.HTTP.header.HTTPHeader;
 
@@ -27,7 +28,7 @@ public abstract class HTTPMessage {
         // Get the content length from the header
         Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
-        if (encoding != null && encoding.equals(HTTPUtil.CHUNKED)) {
+        if (encoding != null && encoding.equals(HTTPUtil.CHUNKED) && this.getHeader().getProtocol().equals(HTTPProtocol.HTTP_1_1)) {
             this.body = httpInputStream.getChunkedBody();
         } else if (cLen != null) {
             this.body = httpInputStream.getBufferedBody(cLen);

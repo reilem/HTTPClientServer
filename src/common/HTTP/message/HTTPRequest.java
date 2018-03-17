@@ -1,9 +1,6 @@
 package common.HTTP.message;
 
-import common.HTTP.HTTPBody;
-import common.HTTP.HTTPField;
-import common.HTTP.HTTPMethod;
-import common.HTTP.HTTPUtil;
+import common.HTTP.*;
 import common.HTTP.exceptions.ContentLengthRequiredException;
 import common.HTTP.header.HTTPRequestHeader;
 
@@ -26,9 +23,10 @@ public class HTTPRequest extends HTTPMessage {
         // Fetch the header from the input stream
         this.header = httpInputStream.getRequestHeader();
         HTTPMethod method =  this.header.getMethod();
+        HTTPProtocol protocol = this.header.getProtocol();
         Object length = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
         Object encoding = this.header.getFieldValue(HTTPField.TRANSFER_ENCODING);
-        if (method.requiresBody() && length == null && (encoding == null || !encoding.equals(HTTPUtil.CHUNKED))) {
+        if (method.requiresBody() && length == null && (encoding == null || !encoding.equals(HTTPUtil.CHUNKED) || !protocol.equals(HTTPProtocol.HTTP_1_1))) {
             System.out.println(Thread.currentThread().getName() + ": request received.");
             System.out.println(this.header.toString());
             throw new ContentLengthRequiredException();
