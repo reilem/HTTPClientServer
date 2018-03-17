@@ -73,7 +73,9 @@ public class HTTPClient {
         }
         // Create request object and send the request
         HTTPRequest request = new HTTPRequest(requestHeader, requestBody);
-        request.sendRequest(this.httpSocket.getOutputStream());
+        request.send(this.httpSocket.getOutputStream());
+        // Notify the user
+        System.out.println("Request sent...");
         // Create response object and fetch the response data
         HTTPResponse response = new HTTPResponse();
         response.fetchResponse(this.httpSocket.getInputStream(), !requestHeader.getMethod().equals(HTTPMethod.HEAD));

@@ -7,6 +7,7 @@ import common.HTTP.HTTPUtil;
 import common.HTTP.header.HTTPHeader;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Class for HTTP Messages.
@@ -63,5 +64,17 @@ public abstract class HTTPMessage {
             // Other set the body to null.
             this.body = null;
         }
+    }
+
+    /**
+     * Send the current message through the given output stream.
+     * @param outputStream  The output stream on which the current message will be sent.
+     * @throws IOException  If something goes wrong during transmission.
+     */
+    public void send(OutputStream outputStream) throws IOException {
+        // Create http output stream
+        HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
+        // Send the current message
+        httpOutputStream.sendMessage(this);
     }
 }

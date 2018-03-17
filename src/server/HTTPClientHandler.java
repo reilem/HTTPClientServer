@@ -113,7 +113,7 @@ public class HTTPClientHandler implements Runnable {
             responseHeader.addField(HTTPField.CONNECTION, Connection.parseConnection(connectionAlive));
             // Send response
             HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
-            response.sendResponse(client.getOutputStream());
+            response.send(client.getOutputStream());
         }
         System.out.println("Connection closed.");
     }

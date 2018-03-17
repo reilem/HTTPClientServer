@@ -8,15 +8,15 @@ import common.HTTP.header.HTTPRequestHeader;
 import java.io.*;
 
 /**
- * A class for HTTPRequests. Includes methods for both request sending and fetching.
+ * A class for HTTPRequests. Includes methods for sending and fetching requests.
  */
 public class HTTPRequest extends HTTPMessage {
 
-    // The HTTPRequestHeader of the current request.
+    // The header of the current request
     private HTTPRequestHeader header;
 
     /**
-     * Constructor for aHTTPRequest requiring no parameters.
+     * Constructor for a HTTPRequest requiring no parameters
      */
     public HTTPRequest() {}
 
@@ -36,7 +36,7 @@ public class HTTPRequest extends HTTPMessage {
     /**
      * Fetch the request available on the given input stream.
      * @param inputStream                       Input stream on which a request is available.
-     * @throws IOException                      If something goes wrong during request fetching.
+     * @throws IOException                      If something goes wrong during request reading.
      * @throws ContentLengthRequiredException   If content length is required and none if given.
      */
     public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException, InvalidHeaderException {
@@ -58,20 +58,6 @@ public class HTTPRequest extends HTTPMessage {
         }
         // Fetch the body from the input stream
         this.fetchBody(httpInputStream);
-    }
-
-    /**
-     * Send the current request through the given output stream.
-     * @param outputStream  The output stream on which the current request will be sent.
-     * @throws IOException  If something goes wrong during transmission.
-     */
-    public void sendRequest(OutputStream outputStream) throws IOException {
-        // Create http output stream
-        HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
-        // Send message via the stream
-        httpOutputStream.sendMessage(this);
-        // Notify user
-        System.out.println("Request sent...");
     }
 
     /**
