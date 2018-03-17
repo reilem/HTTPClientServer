@@ -1,10 +1,7 @@
 package com.reinert.server;
 
 import com.reinert.common.HTTP.*;
-import com.reinert.common.HTTP.exceptions.AccessForbiddenException;
-import com.reinert.common.HTTP.exceptions.ContentLengthRequiredException;
-import com.reinert.common.HTTP.exceptions.InvalidHeaderException;
-import com.reinert.common.HTTP.exceptions.MethodNotImplementedException;
+import com.reinert.common.HTTP.exceptions.*;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 import com.reinert.common.HTTP.header.HTTPResponseHeader;
 import com.reinert.common.HTTP.message.HTTPRequest;
@@ -53,7 +50,16 @@ public class HTTPClientHandler implements Runnable {
                 request.fetchRequest(client.getInputStream());
                 HTTPRequestHeader requestHeader = request.getHeader();
                 HTTPBody requestBody = request.getBody();
+
+                if (!supportedMethod(requestHeader.getMethod())) {
+                    throw new MethodNotImplementedException();
+                }
+                if (!supportedProtocol(requestHeader.getProtocol())) {
+                    throw new ProtocolNotImplementedException();
+                }
+
                 protocol = requestHeader.getProtocol();
+                HTTPMethod method = requestHeader.getMethod();
 
                 System.out.println(this.threadName + ": request received.");
                 System.out.println(requestHeader.toString());
@@ -65,9 +71,10 @@ public class HTTPClientHandler implements Runnable {
                     throw new InvalidHeaderException();
                 }
 
+
+
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_200);
                 String serverFilePath = this.makeServerFilePath(HTTPUtil.makeFilePathFromPath(requestHeader.getPath()));
-                HTTPMethod method = requestHeader.getMethod();
                 if (method.requiresFileData()) {
                     // Fetch file data for HEAD or GET
                     FileData fileData = this.readFileDataFromPath(serverFilePath);
@@ -91,7 +98,6 @@ public class HTTPClientHandler implements Runnable {
             } catch (IllegalArgumentException | InvalidHeaderException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_400);
             } catch (NullPointerException | IOException e) {
-                e.printStackTrace();
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
             } catch (ContentLengthRequiredException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_411);
@@ -99,6 +105,8 @@ public class HTTPClientHandler implements Runnable {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_403);
             } catch (MethodNotImplementedException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_501);
+            } catch (ProtocolNotImplementedException e) {
+                responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_505);
             }
 
             // Add extra header data
@@ -151,6 +159,14 @@ public class HTTPClientHandler implements Runnable {
 
     private String makeServerFilePath(String path) throws IllegalArgumentException{
         return SERVER_DIR + HTTPUtil.makeFilePathFromPath(path);
+    }
+
+    private boolean supportedMethod(HTTPMethod m) {
+        return m.equals(GET) || m.equals(PUT) || m.equals(POST) || m.equals(HEAD);
+    }
+
+    private boolean supportedProtocol(HTTPProtocol p) {
+        return p.equals(HTTPProtocol.HTTP_1_1) || p.equals(HTTPProtocol.HTTP_1_0);
     }
 
     private class FileData {

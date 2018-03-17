@@ -46,7 +46,7 @@ public class SimpleServerTests {
         try {
             URI hostURI = HTTPUtil.makeURI("localhost/test.txt");
             HTTPClient client = new HTTPClient(this.port, hostURI);
-            client.executeRequest(HTTPMethod.PUT, hostURI, HTTPProtocol.HTTP_1_1, new HTTPBody("PUT TEST"), null);
+            client.executeRequest(HTTPMethod.PUT, hostURI, HTTPProtocol.HTTP_1_1, new HTTPBody("PUT TEST\n"), null);
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
@@ -57,7 +57,7 @@ public class SimpleServerTests {
         try {
             URI hostURI = HTTPUtil.makeURI("localhost/test.txt");
             HTTPClient client = new HTTPClient(this.port, hostURI);
-            client.executeRequest(HTTPMethod.POST, hostURI, HTTPProtocol.HTTP_1_1, new HTTPBody("POST TEST"), null);
+            client.executeRequest(HTTPMethod.POST, hostURI, HTTPProtocol.HTTP_1_1, new HTTPBody("POST TEST\n"), null);
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }

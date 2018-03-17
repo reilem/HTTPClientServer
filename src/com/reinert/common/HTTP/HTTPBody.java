@@ -22,7 +22,8 @@ public class HTTPBody {
             File newFile = new File(filePath);
             if (newFile.getParentFile().mkdirs()) fos = new FileOutputStream(filePath);
         }
-        fos.write(data);
+        if (fos != null) fos.write(data);
+        else throw new FileNotFoundException();
     }
 
     public String getAsString(String charSet) throws UnsupportedEncodingException {

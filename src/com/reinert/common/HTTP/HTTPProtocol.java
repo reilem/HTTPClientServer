@@ -1,9 +1,10 @@
 package com.reinert.common.HTTP;
 
 public enum HTTPProtocol {
-    HTTP_1_1, HTTP_1_0;
+    HTTP_0_9, HTTP_1_0, HTTP_1_1, HTTP_2_0;
 
     public static HTTPProtocol parseProtocol(String str) {
+        if (str.equals("")) return HTTPProtocol.HTTP_0_9;
         return HTTPProtocol.valueOf(str.toUpperCase().replaceAll("[/.]", "_"));
     }
 

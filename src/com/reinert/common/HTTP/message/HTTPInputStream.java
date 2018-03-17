@@ -1,7 +1,6 @@
 package com.reinert.common.HTTP.message;
 
 import com.reinert.common.HTTP.*;
-import com.reinert.common.HTTP.exceptions.MethodNotImplementedException;
 import com.reinert.common.HTTP.header.HTTPHeader;
 import com.reinert.common.HTTP.header.HTTPRequestHeader;
 import com.reinert.common.HTTP.header.HTTPResponseHeader;
@@ -29,11 +28,12 @@ public class HTTPInputStream {
         return header;
     }
 
-    public HTTPRequestHeader getRequestHeader() throws IOException, MethodNotImplementedException {
+    public HTTPRequestHeader getRequestHeader() throws IOException {
         String[] firstLine = getNextLine().split(" ");
         String method = firstLine[0].trim();
         String path = firstLine[1].trim();
-        String protocol = firstLine[2].trim();
+        String protocol = "";
+        if (firstLine.length >= 3 && firstLine[2] != null) protocol = firstLine[2].trim();
         HTTPRequestHeader header = new HTTPRequestHeader(HTTPMethod.parseMethod(method), path, HTTPProtocol.parseProtocol(protocol));
         fillHeaderFields(header);
         return header;

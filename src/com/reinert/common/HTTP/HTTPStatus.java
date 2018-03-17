@@ -10,7 +10,8 @@ public enum HTTPStatus {
     CODE_404("Not Found"),
     CODE_411("Length Required"),
     CODE_500("Internal Server Error"),
-    CODE_501("Not Implemented");
+    CODE_501("Not Implemented"),
+    CODE_505("HTTP Version Not Supported");
 
     private final String message;
 
