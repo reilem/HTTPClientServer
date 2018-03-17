@@ -3,6 +3,7 @@ package server;
 import com.reinert.common.HTTP.HTTPField;
 import com.reinert.common.HTTP.HTTPMethod;
 import com.reinert.common.HTTP.HTTPProtocol;
+import com.reinert.common.HTTP.HTTPTime;
 import com.reinert.server.HTTPServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +27,20 @@ class StatusCodeServerTests {
     }
 
     @Test
+    void notModifiedTest304() {
+        HashMap<HTTPField, Object> extra = new HashMap<>();
+        extra.put(HTTPField.IF_MODIFIED_SINCE, new HTTPTime("Wed, 01 Jan 2020 12:00:00 GMT"));
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_1, null, extra
+        );
+    }
+
+    @Test
     void badRequestTest400() {
         HashMap<HTTPField, Object> extra = new HashMap<>();
         extra.put(HTTPField.HOST, null);
         ServerTestUtil.createAndExecuteClient(
-                HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_1, "Overwrite the root! >:D", extra
+                HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_1, null, extra
         );
     }
 
@@ -44,7 +54,7 @@ class StatusCodeServerTests {
     @Test
     void notFoundTest404() {
         ServerTestUtil.createAndExecuteClient(
-                HTTPMethod.GET, "localhost/afilethatdoesnotexist.txt", HTTPProtocol.HTTP_1_1, null, null
+                HTTPMethod.GET, "localhost/a_file_that_does_not_exist.txt", HTTPProtocol.HTTP_1_1, null, null
         );
     }
 

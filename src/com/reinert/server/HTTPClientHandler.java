@@ -77,14 +77,14 @@ public class HTTPClientHandler implements Runnable {
                     // Fetch file data for HEAD or GET
                     FileData fileData = this.readFileDataFromPath(serverFilePath);
                     HTTPTime checkModifyTime = (HTTPTime)requestHeader.getFieldValue(HTTPField.IF_MODIFIED_SINCE);
-                    if (checkModifyTime != null && fileData.lastModified.time.isAfter(checkModifyTime.time)) {
+                    if (checkModifyTime != null && fileData.lastModified.time.isBefore(checkModifyTime.time)) {
                         responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_304);
                         responseHeader.addField(HTTPField.LAST_MODIFIED, fileData.lastModified);
                     } else if (method.equals(GET)) {
                         responseBody = new HTTPBody(fileData.data);
+                        responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
+                        responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
                     }
-                    responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
-                    responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
                 } else if (method.requiresBody()) {
                     // Write data for PUT or POST
                     if (serverFilePath.equals(SERVER_DIR+"/index.html")) throw new AccessForbiddenException();

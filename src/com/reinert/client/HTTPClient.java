@@ -58,7 +58,7 @@ public class HTTPClient {
         // Create response object and load in response data
         HTTPResponse response = new HTTPResponse();
         response.fetchResponse(this.httpSocket.getInputStream(), !requestHeader.getMethod().equals(HTTPMethod.HEAD));
-
+        // Fetch response header & body
         HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
 
