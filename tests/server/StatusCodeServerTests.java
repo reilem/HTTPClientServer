@@ -10,7 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,7 +37,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void notModifiedTest304() {
+    void notModifiedTest304() throws IOException, URISyntaxException {
         HashMap<HTTPField, Object> extra = new HashMap<>();
         extra.put(HTTPField.IF_MODIFIED_SINCE, new HTTPTime("Wed, 01 Jan 2020 12:00:00 GMT"));
         ServerTestUtil.createAndExecuteClient(
@@ -45,7 +47,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void badRequestTest400() {
+    void badRequestTest400() throws IOException, URISyntaxException {
         HashMap<HTTPField, Object> extra = new HashMap<>();
         extra.put(HTTPField.HOST, null);
         ServerTestUtil.createAndExecuteClient(
@@ -55,7 +57,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void accessForbiddenTest403() {
+    void accessForbiddenTest403() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.PUT, "localhost/", HTTPProtocol.HTTP_1_1, "Overwrite the root! >:D", null
         );
@@ -63,7 +65,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void notFoundTest404() {
+    void notFoundTest404() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.GET, "localhost/a_file_that_does_not_exist.txt", HTTPProtocol.HTTP_1_1, null, null
         );
@@ -71,7 +73,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void lengthRequiredTest411() {
+    void lengthRequiredTest411() throws IOException, URISyntaxException {
         HashMap<HTTPField, Object> extra = new HashMap<>();
         extra.put(HTTPField.CONTENT_LENGTH, null);
         ServerTestUtil.createAndExecuteClient(
@@ -81,7 +83,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void badMethodTest501() {
+    void badMethodTest501() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.OPTIONS, "localhost", HTTPProtocol.HTTP_1_1, null, null
         );
@@ -101,7 +103,7 @@ class StatusCodeServerTests {
     }
 
     @Test
-    void badProtocolTest505() {
+    void badProtocolTest505() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.GET, "localhost", HTTPProtocol.HTTP_0_9, null, null
         );

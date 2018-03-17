@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,12 +19,8 @@ public class MultiThreadServerTests {
 
     private HTTPServer server;
 
-    private ByteArrayOutputStream outContent;
-
     @BeforeEach
     void serverSetup() {
-        this.outContent = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outContent));
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
     }
@@ -34,7 +31,9 @@ public class MultiThreadServerTests {
     }
 
     @Test
-    void communicationTest() throws IOException {
+    void communicationTest() throws IOException, URISyntaxException {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
         String uri = "localhost/message.txt";
         HTTPClient client1 = ServerTestUtil.createClient(uri);
         HTTPClient client2 = ServerTestUtil.createClient(uri);
@@ -67,6 +66,15 @@ public class MultiThreadServerTests {
         ServerTestUtil.executeClientRequest(client1, HTTPMethod.GET, uri, HTTPProtocol.HTTP_1_1, null, null);
         assertTrue(outContent.toString().contains(msg4));
         outContent.reset();
+        System.setOut(System.out);
+    }
+
+    @Test
+    void dDosTest() {
+        for (int i = 0; i < 2; i++) {
+            System.out.println("Connection attempt " + i);
+            ServerTestUtil.createAndExecuteThreadedClient(HTTPMethod.GET, "localhost", HTTPProtocol.HTTP_1_1, null, null);
+        }
     }
 
 }
