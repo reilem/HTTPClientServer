@@ -1,6 +1,8 @@
 package common.HTTP.message;
 
 import common.HTTP.HTTPBody;
+import common.HTTP.HTTPProtocol;
+import common.HTTP.HTTPStatus;
 import common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
@@ -18,11 +20,16 @@ public class HTTPResponse extends HTTPMessage {
         this.header = header;
     }
 
+    @Override
+    public HTTPResponseHeader getHeader() {
+        return header;
+    }
+
     public void fetchResponse(InputStream inputStream, boolean fetchBody) throws IOException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
-        this.header = httpInputStream.getResponseHeader();
+        fetchResponseHeader(httpInputStream);
         // Fetch the body if needed
         if (fetchBody) this.fetchBody(httpInputStream);
     }
@@ -34,8 +41,11 @@ public class HTTPResponse extends HTTPMessage {
         httpOutputStream.sendMessage(this.header, this.body);
     }
 
-    @Override
-    public HTTPResponseHeader getHeader() {
-        return header;
+    private void fetchResponseHeader(HTTPInputStream httpInputStream) throws IOException {
+        String[] firstLine = httpInputStream.getNextLine().split(" ");
+        String protocol = firstLine[0].trim();
+        int status = Integer.parseInt(firstLine[1]);
+        this.header = new HTTPResponseHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
+        httpInputStream.fillHeaderFields(this.header);
     }
 }

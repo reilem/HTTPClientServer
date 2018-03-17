@@ -17,11 +17,15 @@ public class HTTPRequest extends HTTPMessage {
         this.header = header;
     }
 
+    @Override
+    public HTTPRequestHeader getHeader() { return header; }
+
     public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
-        this.header = httpInputStream.getRequestHeader();
+        fetchRequestHeader(httpInputStream);
+        // Determine method & protocol
         HTTPMethod method =  this.header.getMethod();
         HTTPProtocol protocol = this.header.getProtocol();
         Object length = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
@@ -42,6 +46,13 @@ public class HTTPRequest extends HTTPMessage {
         System.out.println("Request sent...");
     }
 
-    @Override
-    public HTTPRequestHeader getHeader() { return header; }
+    private void fetchRequestHeader(HTTPInputStream httpInputStream) throws IOException {
+        String[] firstLine = httpInputStream.getNextLine().split(" ");
+        String method = firstLine[0].trim();
+        String path = firstLine[1].trim();
+        String protocol = "";
+        if (firstLine.length >= 3 && firstLine[2] != null) protocol = firstLine[2].trim();
+        this.header = new HTTPRequestHeader(HTTPMethod.parseMethod(method), path, HTTPProtocol.parseProtocol(protocol));
+        httpInputStream.fillHeaderFields(this.header);
+    }
 }
