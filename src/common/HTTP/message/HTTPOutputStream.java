@@ -27,12 +27,4 @@ public class HTTPOutputStream {
         // Flush the output
         this.outputStream.flush();
     }
-
-    private void sendLine(String s) throws IOException {
-        byte[] bytes = s.getBytes();
-        for (byte b : bytes) {
-            this.outputStream.write(b);
-        }
-        this.outputStream.write(HTTPUtil.CRLF.getBytes());
-    }
 }

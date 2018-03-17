@@ -99,7 +99,7 @@ public class HTTPClient {
             System.out.println("Following redirect...");
             // Execute a request to the new location
             this.executeRequest(HTTPMethod.GET, HTTPUtil.makeURI(location), protocol, null, null);
-        } else if (requestBody != null) {
+        } else if (responseBody != null) {
             // Check the content type, extension and charSet of the response
             ContentType contentType = (ContentType)responseHeader.getFieldValue(HTTPField.CONTENT_TYPE);
             String charSet = null;
