@@ -1,10 +1,9 @@
 package server;
 
-import com.reinert.common.HTTP.HTTPField;
-import com.reinert.common.HTTP.HTTPMethod;
-import com.reinert.common.HTTP.HTTPProtocol;
-import com.reinert.common.HTTP.HTTPTime;
-import com.reinert.server.HTTPServer;
+import common.HTTP.HTTPField;
+import common.HTTP.HTTPMethod;
+import common.HTTP.HTTPProtocol;
+import common.HTTP.HTTPTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

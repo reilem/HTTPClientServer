@@ -1,9 +1,8 @@
 package server;
 
-import com.reinert.client.HTTPClient;
-import com.reinert.common.HTTP.HTTPMethod;
-import com.reinert.common.HTTP.HTTPProtocol;
-import com.reinert.server.HTTPServer;
+import client.HTTPClient;
+import common.HTTP.HTTPMethod;
+import common.HTTP.HTTPProtocol;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

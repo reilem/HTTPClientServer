@@ -1,10 +1,9 @@
 package client;
 
-import com.reinert.client.HTTPClient;
-import com.reinert.common.HTTP.HTTPBody;
-import com.reinert.common.HTTP.HTTPMethod;
-import com.reinert.common.HTTP.HTTPProtocol;
-import com.reinert.common.HTTP.HTTPUtil;
+import common.HTTP.HTTPBody;
+import common.HTTP.HTTPMethod;
+import common.HTTP.HTTPProtocol;
+import common.HTTP.HTTPUtil;
 
 import java.io.IOException;
 import java.net.URI;

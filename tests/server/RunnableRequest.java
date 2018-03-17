@@ -1,8 +1,8 @@
 package server;
 
-import com.reinert.common.HTTP.HTTPField;
-import com.reinert.common.HTTP.HTTPMethod;
-import com.reinert.common.HTTP.HTTPProtocol;
+import common.HTTP.HTTPField;
+import common.HTTP.HTTPMethod;
+import common.HTTP.HTTPProtocol;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

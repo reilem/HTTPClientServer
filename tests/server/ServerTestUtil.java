@@ -1,7 +1,7 @@
 package server;
 
-import com.reinert.client.HTTPClient;
-import com.reinert.common.HTTP.*;
+import client.HTTPClient;
+import common.HTTP.*;
 
 import java.io.IOException;
 import java.net.URI;

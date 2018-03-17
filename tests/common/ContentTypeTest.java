@@ -1,6 +1,6 @@
 package common;
 
-import com.reinert.common.HTTP.ContentType;
+import common.HTTP.ContentType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
