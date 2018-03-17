@@ -51,6 +51,9 @@ public class HTTPClientHandler implements Runnable {
                 HTTPRequestHeader requestHeader = request.getHeader();
                 HTTPBody requestBody = request.getBody();
 
+                System.out.println(this.threadName + ": request received.");
+                System.out.println(requestHeader.toString());
+
                 if (!supportedMethod(requestHeader.getMethod())) {
                     throw new MethodNotImplementedException();
                 }
@@ -61,17 +64,12 @@ public class HTTPClientHandler implements Runnable {
                 protocol = requestHeader.getProtocol();
                 HTTPMethod method = requestHeader.getMethod();
 
-                System.out.println(this.threadName + ": request received.");
-                System.out.println(requestHeader.toString());
-
                 // Check if connection should be kept alive
                 connectionAlive = requestHeader.keepConnectionAlive();
                 // Check if valid header for this protocol (Host header included if 1.1)
                 if (protocol.equals(HTTPProtocol.HTTP_1_1) && requestHeader.getFieldValue(HTTPField.HOST) == null) {
                     throw new InvalidHeaderException();
                 }
-
-
 
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_200);
                 String serverFilePath = this.makeServerFilePath(HTTPUtil.makeFilePathFromPath(requestHeader.getPath()));
@@ -95,12 +93,13 @@ public class HTTPClientHandler implements Runnable {
                 }
             } catch (FileNotFoundException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_404);
-            } catch (IllegalArgumentException | InvalidHeaderException e) {
+            } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException | InvalidHeaderException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_400);
             } catch (NullPointerException | IOException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_500);
             } catch (ContentLengthRequiredException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_411);
+                connectionAlive = false;
             } catch (AccessForbiddenException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_403);
             } catch (MethodNotImplementedException e) {

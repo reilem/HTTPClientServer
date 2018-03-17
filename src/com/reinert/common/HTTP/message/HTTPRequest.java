@@ -26,36 +26,21 @@ public class HTTPRequest extends HTTPMessage {
         Object length = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
         Object encoding = this.header.getFieldValue(HTTPField.TRANSFER_ENCODING);
         if (method.requiresBody() && length == null && (encoding == null || !encoding.equals(HTTPUtil.CHUNKED))) {
+            System.out.println(Thread.currentThread().getName() + ": request received.");
+            System.out.println(this.header.toString());
             throw new ContentLengthRequiredException();
         }
         this.fetchBody(httpInputStream);
     }
 
     public void sendRequest(OutputStream outputStream) throws IOException {
+        // Create http output stream
         HTTPOutputStream httpOutputStream = new HTTPOutputStream(outputStream);
-        HTTPBody requestBody = null;
-        if (this.header.getMethod().requiresBody()) {
-            if (body == null) requestBody = getUserInput();
-            else requestBody = body;
-            this.header.addField(HTTPField.CONTENT_LENGTH, requestBody.getData().length);
-            this.header.addField(HTTPField.CONTENT_TYPE, new ContentType("text", "plain", "utf-8"));
-        }
-        httpOutputStream.sendMessage(this.header, requestBody);
+        // Send message via the stream
+        httpOutputStream.sendMessage(this.header, this.body);
         System.out.println("Request sent...");
     }
 
     @Override
     public HTTPRequestHeader getHeader() { return header; }
-
-    private HTTPBody getUserInput() throws IOException {
-        System.out.println("Please input request body:");
-        BufferedReader inputRead = new BufferedReader(new InputStreamReader(System.in));
-        String nextInput;
-        StringBuilder input = new StringBuilder();
-        while (!(nextInput = inputRead.readLine()).equals("")) {
-            input.append(nextInput);
-            input.append(HTTPUtil.CRLF);
-        }
-        return new HTTPBody(input.toString().getBytes());
-    }
 }

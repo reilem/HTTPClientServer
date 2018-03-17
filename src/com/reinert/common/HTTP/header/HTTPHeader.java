@@ -25,6 +25,8 @@ public abstract class HTTPHeader {
         assert field != null;
         if (!field.equals(HTTPField.OTHER) && value != null && field.isValidValueType(value)) {
             fields.put(field, value);
+        } else if (!field.equals(HTTPField.OTHER) && value == null) {
+            fields.remove(field);
         } else {
             other.add((String)value);
         }
@@ -52,7 +54,7 @@ public abstract class HTTPHeader {
         s.append(HTTPUtil.CRLF);
         this.fields.forEach((HTTPField field, Object value) -> {
             s.append(field.toString());
-            s.append(value.toString());
+            s.append(value != null ? value.toString() : "");
             s.append(HTTPUtil.CRLF);
         });
         this.other.forEach((String str) -> {

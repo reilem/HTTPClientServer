@@ -7,7 +7,9 @@ import com.reinert.common.HTTP.header.HTTPResponseHeader;
 import com.reinert.common.HTTP.message.HTTPRequest;
 import com.reinert.common.HTTP.message.HTTPResponse;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URI;
@@ -31,15 +33,25 @@ public class HTTPClient {
      * @param method        the HTTP method of the request
      * @param uri           the uri of the request
      * @param protocol      the HTTP protocol to be used
-     * @param requestBody   the requestBody of the request, must include CRLF characters as newlines
+     * @param body   the body of the request, must include CRLF characters as newlines
      */
-    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody requestBody, HashMap<HTTPField, Object> extraHeaderFields) throws IOException, URISyntaxException {
+    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody body, HashMap<HTTPField, Object> extraHeaderFields) throws IOException, URISyntaxException {
         if (this.httpSocket == null) return;
         if (this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 
         // Create request header
         HTTPRequestHeader requestHeader = new HTTPRequestHeader(method, uri.getPath(), protocol);
         if (protocol.equals(HTTPProtocol.HTTP_1_1)) requestHeader.addField(HTTPField.HOST, uri.getHost());
+        HTTPBody requestBody = null;
+        if (requestHeader.getMethod().requiresBody()) {
+            if (body == null) requestBody = getUserInput();
+            else requestBody = body;
+            requestHeader.addField(HTTPField.CONTENT_LENGTH, requestBody.getData().length);
+            requestHeader.addField(HTTPField.CONTENT_TYPE, new ContentType("text", "plain", "utf-8"));
+        }
+        if (extraHeaderFields != null) {
+            extraHeaderFields.forEach(requestHeader::addField);
+        }
         // Create request object and send it
         HTTPRequest request = new HTTPRequest(requestHeader, requestBody);
         request.sendRequest(this.httpSocket.getOutputStream());
@@ -103,5 +115,17 @@ public class HTTPClient {
 
     private String makeClientFilePath(URI uri) {
         return CLIENT_DIR + HTTPUtil.makeFilePathFromURI(uri);
+    }
+
+    private HTTPBody getUserInput() throws IOException {
+        System.out.println("Please input request body:");
+        BufferedReader inputRead = new BufferedReader(new InputStreamReader(System.in));
+        String nextInput;
+        StringBuilder input = new StringBuilder();
+        while (!(nextInput = inputRead.readLine()).equals("")) {
+            input.append(nextInput);
+            input.append(HTTPUtil.CRLF);
+        }
+        return new HTTPBody(input.toString().getBytes());
     }
 }
