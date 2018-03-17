@@ -50,11 +50,9 @@ public class HTTPClientHandler implements Runnable {
             try {
                 HTTPRequest request = new HTTPRequest();
                 request.fetchRequest(client.getInputStream());
+                request.printRequestHeader();
                 HTTPRequestHeader requestHeader = request.getHeader();
                 HTTPBody requestBody = request.getBody();
-
-                System.out.println(this.threadName + ": request received.");
-                System.out.println(requestHeader.toString());
 
                 if (!supportedMethod(requestHeader.getMethod())) {
                     throw new MethodNotImplementedException();

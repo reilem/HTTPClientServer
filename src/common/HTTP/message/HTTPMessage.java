@@ -52,12 +52,12 @@ public abstract class HTTPMessage {
         Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         // Get the encoding from the current header
         Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
-        // If encoding is not and is equal to CHUNKED and the current protocol is 1.1
+        // If encoding is not null and is equal to CHUNKED and the current protocol is 1.1
         if (encoding != null && encoding.equals(HTTPUtil.CHUNKED) && this.getHeader().getProtocol().equals(HTTPProtocol.HTTP_1_1)) {
             // Get the body in chunked mode from the given input stream
             this.body = httpInputStream.getChunkedBody();
         } else if (cLen != null) {
-            // Otherwise is a valid content length is given, get the body in buffered mode.
+            // Otherwise if a valid content length is given, get the body in buffered mode
             this.body = httpInputStream.getBufferedBody(cLen);
         } else {
             // Other set the body to null.
