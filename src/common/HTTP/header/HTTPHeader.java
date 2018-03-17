@@ -47,13 +47,14 @@ public abstract class HTTPHeader {
         if (!field.equals(HTTPField.OTHER) && value != null && field.isValidValueType(value)) {
             // If field is not of type OTHER and the value is not null and valid, the put this key value
             // pair in the fields HashMap.
-            fields.put(field, value);
-        } else if (!field.equals(HTTPField.OTHER) && value == null) {
-            // If field is not of type OTHER but the value is null, remove the field from the HashMap.
-            fields.remove(field);
-        } else {
-            // If the field is of type OTHER, then add the value to the other ArrayList.
-            other.add((String)value);
+            this.fields.put(field, value);
+        } else if (!field.equals(HTTPField.OTHER) && value == null && this.fields.containsKey(field)) {
+            // Else if field is not of type OTHER but the value is null and fields contains field as key, then remove
+            // the field from the HashMap.
+            this.fields.remove(field);
+        } else if (field.equals(HTTPField.OTHER)) {
+            // Else if field is of type OTHER, then add the value to the other ArrayList.
+            this.other.add((String)value);
         }
     }
 
@@ -64,16 +65,16 @@ public abstract class HTTPHeader {
      */
     public Object getFieldValue(HTTPField field) {
         // If field is not contained in the fields HashMap, return null.
-        if (!fields.containsKey(field)) return null;
+        if (!this.fields.containsKey(field)) return null;
         // Else return the value found in the fields HashMap.
-        return fields.get(field);
+        return this.fields.get(field);
     }
 
     /**
      * Gets the protocol stored in the current header.
      */
     public HTTPProtocol getProtocol() {
-        return protocol;
+        return this.protocol;
     }
 
     /**
@@ -85,8 +86,8 @@ public abstract class HTTPHeader {
         Connection connection = (Connection)this.getFieldValue(HTTPField.CONNECTION);
         // Return true if protocol is http 1.1, connection is null or equals keep-alive. Or if protocol is http 1.0,
         // connection is not null and equals keep-alive.
-        return (protocol.equals(HTTPProtocol.HTTP_1_1) && (connection == null || connection.equals(Connection.KEEP_ALIVE))) ||
-                (protocol.equals(HTTPProtocol.HTTP_1_0) && connection != null && connection.equals(Connection.KEEP_ALIVE));
+        return (this.protocol.equals(HTTPProtocol.HTTP_1_1) && (connection == null || connection.equals(Connection.KEEP_ALIVE))) ||
+                (this.protocol.equals(HTTPProtocol.HTTP_1_0) && connection != null && connection.equals(Connection.KEEP_ALIVE));
     }
 
     /**
