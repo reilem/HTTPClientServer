@@ -79,6 +79,8 @@ public class HTTPClient {
         // Create response object and fetch the response data
         HTTPResponse response = new HTTPResponse();
         response.fetchResponse(this.httpSocket.getInputStream(), !requestHeader.getMethod().equals(HTTPMethod.HEAD));
+        // Print out the header data
+        response.printHeader();
         // Get the response header & body from response object
         HTTPResponseHeader responseHeader = response.getHeader();
         HTTPBody responseBody = response.getBody();
@@ -87,8 +89,6 @@ public class HTTPClient {
         if (!keepAlive) {
             this.httpSocket.close();
         }
-        // Print out the header data
-        System.out.println("Response received."+ HTTPUtil.NEW_LINE+responseHeader.toString());
         // Get the status code of the response
         HTTPStatus status = responseHeader.getStatus();
         // Check if redirection is needed

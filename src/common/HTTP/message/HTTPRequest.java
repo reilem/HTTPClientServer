@@ -33,6 +33,13 @@ public class HTTPRequest extends HTTPMessage {
     @Override
     public HTTPRequestHeader getHeader() { return header; }
 
+    @Override
+    public void printHeader() {
+        // Print the current thread name and the header
+        System.out.println("Request received.");
+        System.out.println(this.header.toString());
+    }
+
     /**
      * Fetch the request available on the given input stream.
      * @param inputStream                       Input stream on which a request is available.
@@ -53,20 +60,11 @@ public class HTTPRequest extends HTTPMessage {
         // If request method requires a body, no content length is given and chunked transfer encoding is not
         // specified or not valid for this protocol then throw a content length required exception.
         if (method.requiresBody() && length == null && (encoding == null || !encoding.equals(HTTPUtil.CHUNKED) || !protocol.equals(HTTPProtocol.HTTP_1_1))) {
-            printRequestHeader();
+            printHeader();
             throw new ContentLengthRequiredException();
         }
         // Fetch the body from the input stream
         this.fetchBody(httpInputStream);
-    }
-
-    /**
-     * Prints the current header.
-     */
-    public void printRequestHeader() {
-        // Print the current thread name and the header
-        System.out.println(Thread.currentThread().getName() + ": request received.");
-        System.out.println(this.header.toString());
     }
 
     /**

@@ -27,7 +27,7 @@ public class ChatClient {
             HTTPClient client = new HTTPClient(port, HTTPUtil.makeURI(uri));
             // Execute its request
             client.executeRequest(HTTPMethod.parseMethod(method), HTTPUtil.makeURI(uri), HTTPProtocol.parseProtocol(protocol), null, null);
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException | URISyntaxException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }

@@ -50,19 +50,21 @@ public class HTTPClientHandler implements Runnable {
             try {
                 HTTPRequest request = new HTTPRequest();
                 request.fetchRequest(client.getInputStream());
-                request.printRequestHeader();
+                request.printHeader();
                 HTTPRequestHeader requestHeader = request.getHeader();
                 HTTPBody requestBody = request.getBody();
+                HTTPMethod method = requestHeader.getMethod();
 
-                if (!supportedMethod(requestHeader.getMethod())) {
+                if (!supportedMethod(method)) {
                     throw new MethodNotImplementedException();
+                } else if (method.equals(HTTPMethod.BREW)) {
+                    throw new TeaPotException();
                 }
                 if (!supportedProtocol(requestHeader.getProtocol())) {
                     throw new ProtocolNotImplementedException();
                 }
 
                 protocol = requestHeader.getProtocol();
-                HTTPMethod method = requestHeader.getMethod();
 
                 // Check if connection should be kept alive
                 connectionAlive = requestHeader.keepConnectionAlive();
@@ -106,6 +108,8 @@ public class HTTPClientHandler implements Runnable {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_501);
             } catch (ProtocolNotImplementedException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_505);
+            } catch (TeaPotException e) {
+                responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_418);
             }
 
             // Add extra header data
@@ -157,7 +161,7 @@ public class HTTPClientHandler implements Runnable {
     }
 
     private boolean supportedMethod(HTTPMethod m) {
-        return m.equals(HTTPMethod.GET) || m.equals(HTTPMethod.PUT) || m.equals(HTTPMethod.POST) || m.equals(HTTPMethod.HEAD);
+        return m.equals(HTTPMethod.GET) || m.equals(HTTPMethod.PUT) || m.equals(HTTPMethod.POST) || m.equals(HTTPMethod.HEAD) || m.equals(HTTPMethod.BREW);
     }
 
     private boolean supportedProtocol(HTTPProtocol p) {

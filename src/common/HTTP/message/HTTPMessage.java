@@ -31,10 +31,16 @@ public abstract class HTTPMessage {
     }
 
     /**
+     * Abstract method to print the header of the current HTTP message.
+     */
+    public abstract void printHeader();
+
+    /**
      * Abstract method to get the header of the current HTTP message. The Header may be a HTTPResponseHeader or a
      * HTTPRequestHeader
      */
     abstract HTTPHeader getHeader();
+
 
     /**
      * Gets the body of the current message.

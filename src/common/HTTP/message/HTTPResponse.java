@@ -34,6 +34,13 @@ public class HTTPResponse extends HTTPMessage {
     @Override
     public HTTPResponseHeader getHeader() { return header; }
 
+    @Override
+    public void printHeader() {
+        // Print the current thread name and the header
+        System.out.println("Response received.");
+        System.out.println(this.header.toString());
+    }
+
     /**
      * Fetch the response available on the given input stream.
      * @param inputStream   Input stream on which a request is available.
@@ -55,10 +62,14 @@ public class HTTPResponse extends HTTPMessage {
      * @throws IOException      If something goes wrong during reading.
      */
     private void fetchResponseHeader(HTTPInputStream httpInputStream) throws IOException {
+        // Get next line on the stream and split it on spaces
         String[] firstLine = httpInputStream.getNextLine().split(" ");
+        // Get the protocol and status values from the line
         String protocol = firstLine[0].trim();
         int status = Integer.parseInt(firstLine[1]);
-        this.header = new HTTPResponseHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.getStatusFor(status));
+        // Parse the protocol and status values into a new HTTP Response Header
+        this.header = new HTTPResponseHeader(HTTPProtocol.parseProtocol(protocol), HTTPStatus.parseStatus(status));
+        // Fill in extra header fields.
         httpInputStream.fillHeaderFields(this.header);
     }
 }
