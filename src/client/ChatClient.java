@@ -27,7 +27,17 @@ public class ChatClient {
             HTTPClient client = new HTTPClient(port, HTTPUtil.makeURI(uri));
             // Execute its request
             client.executeRequest(HTTPMethod.parseMethod(method), HTTPUtil.makeURI(uri), HTTPProtocol.parseProtocol(protocol), null, null);
-        } catch (IOException | URISyntaxException | IllegalArgumentException e) {
+        } catch (IOException e) {
+            // Catch any IO errors.
+            System.err.println("Internal error occurred while sending the request or reading the response. Please try again.");
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            // Catch any URI parsing errors.
+            System.err.println("Invalid URI path or host name given in second argument.");
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            // Catch any Protocol/Method parsing errors
+            System.err.println("Invalid Protocol or Method given in first or fourth argument.");
             e.printStackTrace();
         }
     }
