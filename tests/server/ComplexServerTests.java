@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MultiThreadServerTests {
+public class ComplexServerTests {
 
     private HTTPServer server;
 
@@ -25,7 +25,7 @@ public class MultiThreadServerTests {
     }
 
     @AfterEach
-    void serverShutdown() {
+    void serverShutdown() throws InterruptedException {
         this.server.stop();
     }
 

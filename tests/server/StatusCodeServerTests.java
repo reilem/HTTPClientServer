@@ -31,7 +31,7 @@ class StatusCodeServerTests {
     }
 
     @AfterEach
-    void serverShutdown() {
+    void serverShutdown() throws InterruptedException {
         this.server.stop();
         System.setOut(System.out);
     }

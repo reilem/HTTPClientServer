@@ -20,7 +20,7 @@ class SimpleServerTests {
     }
 
     @AfterEach
-    void serverShutdown() {
+    void serverShutdown() throws InterruptedException {
         this.server.stop();
     }
 

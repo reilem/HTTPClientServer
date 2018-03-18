@@ -155,9 +155,11 @@ public class HTTPClientHandler implements Runnable {
             HTTPResponse response = new HTTPResponse(responseHeader, responseBody);
             // Try to send the response 5 times.
             int tries = 0;
-            while (tries < 5) {
+            boolean responseSent = false;
+            while (!responseSent && tries < 5) {
                 try {
                     response.send(client.getOutputStream());
+                    responseSent = true;
                 } catch (IOException e) {
                     System.out.println("Internal error occurred when sending response.");
                     if (tries++ < 5) System.out.println("Trying again.");
