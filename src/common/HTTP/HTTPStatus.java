@@ -6,6 +6,7 @@ package common.HTTP;
 public enum HTTPStatus {
     // Implemented status codes
     CODE_200("OK"),
+    CODE_204("No Content"),
     CODE_302("Found"),
     CODE_304("Not Modified"),
     CODE_400("Bad Request"),
@@ -24,7 +25,6 @@ public enum HTTPStatus {
     CODE_201("Created"),
     CODE_202("Accepted"),
     CODE_203("Non-Authoritative Information"),
-    CODE_204("No Content"),
     CODE_205("Reset Content"),
     CODE_206("Partial Content"),
     CODE_300("Multiple Choices"),

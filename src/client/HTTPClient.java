@@ -1,6 +1,7 @@
 package client;
 
 import common.HTML.HTMLUtil;
+import common.HTTP.exceptions.NoContentFoundException;
 import common.HTTP.header.HTTPRequestHeader;
 import common.HTTP.header.HTTPResponseHeader;
 import common.HTTP.message.HTTPRequest;
@@ -133,8 +134,10 @@ public class HTTPClient {
                 // Make new response body from response text
                 responseBody = new HTTPBody(responseText);
             }
-            // Write response body to file
-            responseBody.writeDataToFile(makeClientFilePath(uri));
+            try {
+                // Write response body to file
+                responseBody.writeDataToFile(makeClientFilePath(uri), false);
+            } catch (NoContentFoundException ignored) {}
         }
     }
 

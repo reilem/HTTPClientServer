@@ -1,6 +1,11 @@
 package common.HTTP;
 
+import common.HTTP.exceptions.NoContentFoundException;
+
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Class representing the body of a HTTP message. Contains a byte array for data storage and methods that can print
@@ -30,21 +35,29 @@ public class HTTPBody {
     /**
      * Write the data stored in the current http body to file at given file path.
      * @param filePath      Given file path.
+     * @param append        Determines if data should be appended to file or overwritten.
      * @throws IOException  If something goes wrong during file writing.
      */
-    public void writeDataToFile(String filePath) throws IOException {
-        FileOutputStream fos = null;
-        try {
-            // Attempt to open a file output stream at this position
-            fos = new FileOutputStream(filePath);
-        } catch (FileNotFoundException e) {
-            // If file not found, create the needed directories
-            File newFile = new File(filePath);
-            if (newFile.getParentFile().mkdirs()) fos = new FileOutputStream(filePath);
+    public void writeDataToFile(String filePath, boolean append) throws NoContentFoundException {
+        if (append) {
+            try {
+                Files.write(Paths.get(filePath), this.data, StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                throw new NoContentFoundException();
+            }
         }
-        // Write the data to the file output stream
-        if (fos != null) fos.write(data);
-        else throw new FileNotFoundException();
+        else {
+            try {
+                Files.write(Paths.get(filePath), this.data);
+            } catch (IOException e) {
+                // If file not found, create the needed directories
+                File newFile = new File(filePath);
+                if (newFile.getParentFile().mkdirs()) {
+                    try {Files.write(Paths.get(filePath), this.data); } catch (IOException ignored) {}
+                }
+            }
+        }
+
     }
 
     /**

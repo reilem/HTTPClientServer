@@ -21,10 +21,12 @@ class StatusCodeServerTests {
     private HTTPServer server;
 
     private ByteArrayOutputStream outContent;
+    private PrintStream stdOut;
 
     @BeforeEach
     void serverSetup() throws InterruptedException {
         this.outContent = new ByteArrayOutputStream();
+        this.stdOut = System.out;
         System.setOut(new PrintStream(outContent));
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
@@ -33,7 +35,7 @@ class StatusCodeServerTests {
     @AfterEach
     void serverShutdown() throws InterruptedException {
         this.server.stop();
-        System.setOut(System.out);
+        System.setOut(this.stdOut);
     }
 
     @Test

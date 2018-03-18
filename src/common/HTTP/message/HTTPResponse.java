@@ -55,11 +55,7 @@ public class HTTPResponse extends HTTPMessage {
         fetchResponseHeader(httpInputStream);
         // Try to fetch the body if needed
         if (fetchBody) {
-            try {
-                this.fetchBody(httpInputStream);
-            } catch (ContentLengthRequiredException e) {
-                System.out.println("Content length was expected, but none was given.");
-            }
+            try { this.fetchBody(httpInputStream); } catch (ContentLengthRequiredException ignore) {}
         }
     }
 

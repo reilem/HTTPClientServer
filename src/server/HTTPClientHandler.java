@@ -9,9 +9,6 @@ import common.HTTP.message.HTTPResponse;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
  * Class used by HTTPPooledServer to handle clients individually in a separate thread.
@@ -116,9 +113,9 @@ public class HTTPClientHandler implements Runnable {
                     // If attempt to put or post onto index.html, throw access forbidden exception.
                     if (serverFilePath.equals(SERVER_DIR+"/index.html")) throw new AccessForbiddenException();
                     // If method is PUT, overwrite body to file data
-                    if (method.equals(HTTPMethod.PUT)) overwriteFileDataToPath(serverFilePath, requestBody.getData());
+                    if (method.equals(HTTPMethod.PUT)) requestBody.writeDataToFile(serverFilePath, false);
                     // If method is POST, append body to file data
-                    else if (method.equals(HTTPMethod.POST)) appendFileDataToPath(serverFilePath, requestBody.getData());
+                    else if (method.equals(HTTPMethod.POST)) requestBody.writeDataToFile(serverFilePath, true);
                 }
             } catch (FileNotFoundException e) {
                 // If file not found, make 404 response header
@@ -147,6 +144,8 @@ public class HTTPClientHandler implements Runnable {
             } catch (CannotBrewCoffeeException e) {
                 // If this server is asked to brew coffee, make 418 response header
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_418);
+            } catch (NoContentFoundException e) {
+                responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_204);
             }
             // Add extra header data such as date and connection state.
             responseHeader.addField(HTTPField.DATE, HTTPTime.getCurrentTime());
@@ -168,16 +167,6 @@ public class HTTPClientHandler implements Runnable {
             }
         }
         System.out.println("Connection closed.");
-    }
-
-    // TODO: USE HTTPBODY FOR THIS
-    private void appendFileDataToPath(String serverFilePath, byte[] body) throws IOException {
-        // Overwrite or create new file at path with body data
-        Files.write(Paths.get(serverFilePath), body, StandardOpenOption.APPEND);
-    }
-    private void overwriteFileDataToPath(String serverFilePath, byte[] body) throws IOException {
-        // Overwrite or create new file at path with body data
-        Files.write(Paths.get(serverFilePath), body);
     }
 
     /**

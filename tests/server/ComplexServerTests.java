@@ -31,6 +31,7 @@ public class ComplexServerTests {
 
     @Test
     void communicationTest() throws IOException, URISyntaxException {
+        PrintStream stdOut = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
         String uri = "localhost/message.txt";
@@ -65,12 +66,11 @@ public class ComplexServerTests {
         ServerTestUtil.executeClientRequest(client1, HTTPMethod.GET, uri, HTTPProtocol.HTTP_1_1, null, null);
         assertTrue(outContent.toString().contains(msg4));
         outContent.reset();
-        System.setOut(System.out);
+        System.setOut(stdOut);
     }
 
     @Test
     void dDosTest() {
-        ServerTestUtil.createAndExecuteThreadedClient(HTTPMethod.GET, "localhost", HTTPProtocol.HTTP_1_1, null, null);
     }
 
 }
