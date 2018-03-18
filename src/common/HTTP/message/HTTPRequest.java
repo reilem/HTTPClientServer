@@ -44,27 +44,15 @@ public class HTTPRequest extends HTTPMessage {
      * Fetch the request available on the given input stream.
      * @param inputStream                       Input stream on which a request is available.
      * @throws IOException                      If something goes wrong during request reading.
-     * @throws ContentLengthRequiredException   If content length is required and none if given.
+     * @throws ContentLengthRequiredException   If content length is required and none is given.
      */
     public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException, InvalidHeaderException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
         fetchRequestHeader(httpInputStream);
-        // Determine method & protocol
-        HTTPMethod method =  this.header.getMethod();
-        HTTPProtocol protocol = this.header.getProtocol();
-        // Determine content length and transfer encoding
-        Object length = this.header.getFieldValue(HTTPField.CONTENT_LENGTH);
-        Object encoding = this.header.getFieldValue(HTTPField.TRANSFER_ENCODING);
-        // If request method requires a body, no content length is given and chunked transfer encoding is not
-        // specified or not valid for this protocol then throw a content length required exception.
-        if (method.requiresBody() && length == null && (encoding == null || !encoding.equals(HTTPUtil.CHUNKED) || !protocol.equals(HTTPProtocol.HTTP_1_1))) {
-            printHeader();
-            throw new ContentLengthRequiredException();
-        }
-        // Fetch the body from the input stream
-        this.fetchBody(httpInputStream);
+        // If request method requires a body, attempt to fetch the body.
+        if (this.header.getMethod().requiresBody()) this.fetchBody(httpInputStream);
     }
 
     /**

@@ -17,6 +17,10 @@ public enum HTTPProtocol {
         return HTTPProtocol.valueOf(str.toUpperCase().replaceAll("[/.]", "_"));
     }
 
+    public boolean supportsChunked() {
+        return this.equals(HTTP_1_1) || this.equals(HTTP_2_0);
+    }
+
     @Override
     public String toString() {
         switch (this){

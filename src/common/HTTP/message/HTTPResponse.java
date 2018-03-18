@@ -3,6 +3,7 @@ package common.HTTP.message;
 import common.HTTP.HTTPBody;
 import common.HTTP.HTTPProtocol;
 import common.HTTP.HTTPStatus;
+import common.HTTP.exceptions.ContentLengthRequiredException;
 import common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
@@ -43,17 +44,23 @@ public class HTTPResponse extends HTTPMessage {
 
     /**
      * Fetch the response available on the given input stream.
-     * @param inputStream   Input stream on which a request is available.
-     * @param fetchBody     Boolean will determine if a body fetch is necessary.
-     * @throws IOException  If something goes wrong during response reading.
+     * @param inputStream                       Input stream on which a request is available.
+     * @param fetchBody                         Boolean will determine if a body fetch is necessary.
+     * @throws IOException                      If something goes wrong during response reading.
      */
     public void fetchResponse(InputStream inputStream, boolean fetchBody) throws IOException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
         fetchResponseHeader(httpInputStream);
-        // Fetch the body if needed
-        if (fetchBody) this.fetchBody(httpInputStream);
+        // Try to fetch the body if needed
+        if (fetchBody) {
+            try {
+                this.fetchBody(httpInputStream);
+            } catch (ContentLengthRequiredException e) {
+                System.out.println("Content length was expected, but none was given.");
+            }
+        }
     }
 
     /**

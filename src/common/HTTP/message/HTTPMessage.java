@@ -3,7 +3,7 @@ package common.HTTP.message;
 import common.HTTP.HTTPBody;
 import common.HTTP.HTTPField;
 import common.HTTP.HTTPProtocol;
-import common.HTTP.HTTPUtil;
+import common.HTTP.exceptions.ContentLengthRequiredException;
 import common.HTTP.header.HTTPHeader;
 
 import java.io.IOException;
@@ -14,8 +14,11 @@ import java.io.OutputStream;
  */
 public abstract class HTTPMessage {
 
+    //
+    private static final String CHUNKED = "chunked";
+
     // The HTTPBody of the current message
-    HTTPBody body;
+    private HTTPBody body;
 
     /**
      * A constructor for a HTTPMessage requiring no parameters.
@@ -51,24 +54,27 @@ public abstract class HTTPMessage {
 
     /**
      * Fetch the body available on the given input stream.
-     * @param httpInputStream   HTTPInputStream on which the body is available.
-     * @throws IOException      If anything goes wrong during fetching the body.
+     * @param httpInputStream                   HTTPInputStream on which the body is available.
+     * @throws IOException                      If anything goes wrong during fetching the body.
+     * @throws ContentLengthRequiredException   If content length is required and not given.
      */
-    void fetchBody(HTTPInputStream httpInputStream) throws IOException {
+    void fetchBody(HTTPInputStream httpInputStream) throws IOException, ContentLengthRequiredException {
+        // Get the protocol from current headers
+        HTTPProtocol protocol = this.getHeader().getProtocol();
         // Get the content length from the current header
         Integer cLen = (Integer)this.getHeader().getFieldValue(HTTPField.CONTENT_LENGTH);
         // Get the encoding from the current header
         Object encoding = this.getHeader().getFieldValue(HTTPField.TRANSFER_ENCODING);
-        // If encoding is not null and is equal to CHUNKED and the current protocol is 1.1
-        if (encoding != null && encoding.equals(HTTPUtil.CHUNKED) && this.getHeader().getProtocol().equals(HTTPProtocol.HTTP_1_1)) {
+        // If encoding is not null and is equal to CHUNKED and the current protocol supports chunked
+        if (encoding != null && encoding.equals(CHUNKED) && protocol.supportsChunked()) {
             // Get the body in chunked mode from the given input stream
             this.body = httpInputStream.getChunkedBody();
         } else if (cLen != null) {
             // Otherwise if a valid content length is given, get the body in buffered mode
             this.body = httpInputStream.getBufferedBody(cLen);
         } else {
-            // Other set the body to null.
-            this.body = null;
+            // Otherwise throw a content length required exception.
+            throw new ContentLengthRequiredException();
         }
     }
 
