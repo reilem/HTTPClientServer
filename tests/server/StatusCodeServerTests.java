@@ -28,7 +28,6 @@ class StatusCodeServerTests {
         System.setOut(new PrintStream(outContent));
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
-        while (server.notReady()) Thread.sleep(100);
     }
 
     @AfterEach

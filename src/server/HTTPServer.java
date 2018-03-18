@@ -8,12 +8,16 @@ public class HTTPServer {
         this.server = new HTTPPooledServer(port);
     }
 
-    public void start() {
+    public void start() throws InterruptedException {
         Thread serverThread = new Thread(this.server);
         serverThread.start();
+        synchronized (this.server) {
+            // Wait for server to start up
+            while (!this.server.isRunning()) {
+                this.server.wait();
+            }
+        }
     }
-
-    public boolean notReady() { return !server.isRunning(); }
 
     public void stop() {
         server.stopServer();

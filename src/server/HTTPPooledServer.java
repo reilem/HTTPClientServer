@@ -50,8 +50,11 @@ public class HTTPPooledServer implements Runnable {
 
     private synchronized void startServer() {
         try {
-            this.serverSocket = new ServerSocket(this.port);
-            this.running = true;
+            synchronized (this) {
+                this.serverSocket = new ServerSocket(this.port);
+                this.running = true;
+                this.notifyAll();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -22,7 +22,6 @@ public class MultiThreadServerTests {
     void serverSetup() throws InterruptedException {
         this.server = new HTTPServer(ServerTestUtil.PORT);
         this.server.start();
-        while (server.notReady()) Thread.sleep(100);
     }
 
     @AfterEach

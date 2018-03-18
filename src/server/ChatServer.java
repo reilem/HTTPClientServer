@@ -6,7 +6,11 @@ public class ChatServer {
         int port = Integer.parseInt(args[0]);
         // Create a HTTPServer
         HTTPServer server = new HTTPServer(port);
-        // Start the server
-        server.start();
+        try {
+            // Start the server
+            server.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
