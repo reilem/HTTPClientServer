@@ -25,10 +25,7 @@ abstract class ServerTestUtil {
     }
 
     static HTTPClient createClient(String uri) throws IOException, URISyntaxException {
-        HTTPClient client = null;
-        URI hostURI = HTTPUtil.makeURI(uri);
-        client = new HTTPClient(PORT, hostURI);
-        return client;
+        return new HTTPClient(PORT, HTTPUtil.makeURI(uri));
     }
 
     static void executeClientRequest(HTTPClient client, HTTPMethod method, String uri, HTTPProtocol protocol, String body, HashMap<HTTPField, Object> extraHeaders) throws IOException, URISyntaxException {
