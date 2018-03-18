@@ -5,7 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * A class containing content type parameters.
+ * A convenience class containing content type variables & methods to parse and request content type. Used for storing
+ * the content type received in the "Content-Type:" HTTP header field.
  */
 public class ContentType {
 

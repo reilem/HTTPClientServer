@@ -1,7 +1,7 @@
 package common.HTTP;
 
 /**
- * Types of possible connection values passed via HTTP.
+ * Types of possible connection values passed via HTTP in the "Connection:" HTTP header field.
  */
 public enum Connection {
     CLOSE, KEEP_ALIVE;
