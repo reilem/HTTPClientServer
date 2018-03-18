@@ -25,30 +25,58 @@ class SimpleServerTests {
     }
 
     @Test
-    void getTest() throws IOException, URISyntaxException {
+    void getTestHTTP1_1() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_1, null, null
         );
     }
 
     @Test
-    void putTest() throws IOException, URISyntaxException {
+    void putTestHTTP1_1() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.PUT, "localhost/test.txt", HTTPProtocol.HTTP_1_1, "PUT TEST\n", null
         );
     }
 
     @Test
-    void postTest() throws IOException, URISyntaxException {
+    void postTestHTTP1_1() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.POST, "localhost/test.txt", HTTPProtocol.HTTP_1_1, "POST TEST\n", null
         );
     }
 
     @Test
-    void headTest() throws IOException, URISyntaxException {
+    void headTestHTTP1_1() throws IOException, URISyntaxException {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.HEAD, "localhost/", HTTPProtocol.HTTP_1_1, null, null
+        );
+    }
+
+    @Test
+    void getTestHTTP1_0() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_0, null, null
+        );
+    }
+
+    @Test
+    void putTestHTTP1_0() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.PUT, "localhost/test.txt", HTTPProtocol.HTTP_1_0, "PUT TEST\n", null
+        );
+    }
+
+    @Test
+    void postTestHTTP1_0() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.POST, "localhost/test.txt", HTTPProtocol.HTTP_1_0, "POST TEST\n", null
+        );
+    }
+
+    @Test
+    void headTestHTTP1_0() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.HEAD, "localhost/", HTTPProtocol.HTTP_1_0, null, null
         );
     }
 

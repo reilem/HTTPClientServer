@@ -39,6 +39,14 @@ class StatusCodeServerTests {
     }
 
     @Test
+    void noContentTest204() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.POST, "localhost/file_that_does_not_exist.txt", HTTPProtocol.HTTP_1_1, "HELLO", null
+        );
+        assertTrue(outContent.toString().contains("204 No Content\r\n"));
+    }
+
+    @Test
     void notModifiedTest304() throws IOException, URISyntaxException {
         HashMap<HTTPField, Object> extra = new HashMap<>();
         extra.put(HTTPField.IF_MODIFIED_SINCE, new HTTPTime("Wed, 01 Jan 2020 12:00:00 GMT"));
@@ -82,6 +90,14 @@ class StatusCodeServerTests {
                 HTTPMethod.PUT, "localhost/test.txt", HTTPProtocol.HTTP_1_1, "Put this text.\n", extra
         );
         assertTrue(outContent.toString().contains("411 Length Required\r\n"));
+    }
+
+    @Test
+    void teapotTest418() throws IOException, URISyntaxException {
+        ServerTestUtil.createAndExecuteClient(
+                HTTPMethod.BREW, "localhost/file_that_does_not_exist.txt", HTTPProtocol.HTTP_1_1, null, null
+        );
+        assertTrue(outContent.toString().contains("418 I'm a teapot\r\n"));
     }
 
     @Test
