@@ -17,28 +17,34 @@ public class ChatClient {
      * @param args The String array of given parameters. Must contain a HTTP method, a uri, a port and HTTP protocol.
      */
     public static void main(String[] args) {
-        // Fetch input parameters
-        String method = args[0];
-        String uri = args[1];
-        int port = Integer.parseInt(args[2]);
-        String protocol = args[3];
+        boolean verbose = false;
         try {
+            // Fetch input parameters
+            String method = args[0];
+            String uri = args[1];
+            int port = Integer.parseInt(args[2]);
+            String protocol = args[3];
+            if (args.length >= 5) {
+                String verboseStr = args[4];
+                verbose = verboseStr.equals("-v");
+            }
             // Make a client
             HTTPClient client = new HTTPClient(port, HTTPUtil.makeURI(uri));
             // Execute its request
             client.executeRequest(HTTPMethod.parseMethod(method), HTTPUtil.makeURI(uri), HTTPProtocol.parseProtocol(protocol), null, null);
         } catch (IOException e) {
             // Catch any IO errors.
-            System.err.println("Internal error occurred while sending the request or reading the response. Please try again.");
-            e.printStackTrace();
+            System.err.println("Error occurred while connecting to server. Please check your host and port name are valid.");
+            System.out.println("(Add -v as last argument to view verbose error details)");
+            if (verbose) e.printStackTrace();
         } catch (URISyntaxException e) {
             // Catch any URI parsing errors.
             System.err.println("Invalid URI path or host name given in second argument.");
-            e.printStackTrace();
         } catch (IllegalArgumentException e) {
             // Catch any Protocol/Method parsing errors
             System.err.println("Invalid Protocol or Method given in first or fourth argument.");
-            e.printStackTrace();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Incorrect number of arguments, please ensure your request is in the form: [METHOD] [HOST-PATH] [PORT] [PROTOCOL]");
         }
     }
 }
