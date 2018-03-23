@@ -31,16 +31,13 @@ public class HTTPOutputStream {
     public void sendMessage(HTTPMessage httpMessage) throws IOException {
         // Write the header from the given http Message
         this.outputStream.write(httpMessage.getHeader().toString().getBytes());
+        this.outputStream.write(HTTPUtil.CRLF.getBytes());
         // Get the body from the message
         HTTPBody body = httpMessage.getBody();
         if (body != null) {
-            // If the body is not null, write it with surrounding CRLF's
-            this.outputStream.write(HTTPUtil.CRLF.getBytes());
+            // If the body is not null, write it
             this.outputStream.write(body.getData());
-            this.outputStream.write(HTTPUtil.CRLF.getBytes());
         }
-        // Write finishing CRLF line
-        this.outputStream.write(HTTPUtil.CRLF.getBytes());
         // Flush the output
         this.outputStream.flush();
     }
