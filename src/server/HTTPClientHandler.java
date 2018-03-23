@@ -183,16 +183,16 @@ public class HTTPClientHandler implements Runnable {
         // Get the file from path
         File f = this.getFileFromPath(serverFilePath);
         // Make a file reader to read from file
-        FileReader fileReader = new FileReader(f);
+        FileInputStream fos = new FileInputStream(f);
         // Store data in byte array output stream
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         // While next byte is valid write it to output stream
         int next;
-        while ((next = fileReader.read()) != -1) {
+        while ((next = fos.read()) != -1) {
             data.write(next);
         }
         // Close file reader
-        fileReader.close();
+        fos.close();
         // Calculate last modified date
         HTTPTime lastModified = new HTTPTime(f.lastModified());
         // Return the data in a FileData object
