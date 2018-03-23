@@ -10,17 +10,19 @@ public class ChatServer {
      * @param args The String array of given parameters. Must contain a valid port for your current setup.
      */
     public static void main(String[] args) {
-        // Fetch port number from input arguments
-        int port = Integer.parseInt(args[0]);
-        // Create a HTTPServer
-        HTTPServer server = new HTTPServer(port);
         try {
+            // Fetch port number from input arguments
+            int port = Integer.parseInt(args[0]);
+            // Create a HTTPServer
+            HTTPServer server = new HTTPServer(port);
             // Start the server
             server.start();
         } catch (InterruptedException e) {
             // Catch any interrupted thread exceptions.
             System.err.println("Internal error occurred while waiting for server to startup. Please try again.");
             e.printStackTrace();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("No port number given.");
         }
     }
 }
