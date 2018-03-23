@@ -3,6 +3,7 @@ package common.HTTP.message;
 import common.HTTP.*;
 import common.HTTP.exceptions.ContentLengthRequiredException;
 import common.HTTP.exceptions.InvalidHeaderException;
+import common.HTTP.exceptions.TimeOutException;
 import common.HTTP.header.HTTPRequestHeader;
 
 import java.io.*;
@@ -46,7 +47,7 @@ public class HTTPRequest extends HTTPMessage {
      * @throws IOException                      If something goes wrong during request reading.
      * @throws ContentLengthRequiredException   If content length is required and none is given.
      */
-    public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException, InvalidHeaderException {
+    public void fetchRequest(InputStream inputStream) throws IOException, ContentLengthRequiredException, InvalidHeaderException, TimeOutException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
@@ -60,7 +61,7 @@ public class HTTPRequest extends HTTPMessage {
      * @param httpInputStream   Input stream on which a request header is available.
      * @throws IOException      If something goes wrong during reading.
      */
-    private void fetchRequestHeader(HTTPInputStream httpInputStream) throws IOException, InvalidHeaderException {
+    private void fetchRequestHeader(HTTPInputStream httpInputStream) throws IOException, InvalidHeaderException, TimeOutException {
         // Get the first line on the input stream
         String[] firstLine = httpInputStream.getNextLine().split(" ");
         // If first line does not contain at least two elements throw invalid header exception

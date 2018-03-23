@@ -4,6 +4,7 @@ import common.HTTP.HTTPBody;
 import common.HTTP.HTTPProtocol;
 import common.HTTP.HTTPStatus;
 import common.HTTP.exceptions.ContentLengthRequiredException;
+import common.HTTP.exceptions.TimeOutException;
 import common.HTTP.header.HTTPResponseHeader;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class HTTPResponse extends HTTPMessage {
      * @param fetchBody                         Boolean will determine if a body fetch is necessary.
      * @throws IOException                      If something goes wrong during response reading.
      */
-    public void fetchResponse(InputStream inputStream, boolean fetchBody) throws IOException {
+    public void fetchResponse(InputStream inputStream, boolean fetchBody) throws IOException, TimeOutException {
         // Create a http input stream
         HTTPInputStream httpInputStream = new HTTPInputStream(inputStream);
         // Fetch the header from the input stream
@@ -64,7 +65,7 @@ public class HTTPResponse extends HTTPMessage {
      * @param httpInputStream   Input stream on which a response header is available.
      * @throws IOException      If something goes wrong during reading.
      */
-    private void fetchResponseHeader(HTTPInputStream httpInputStream) throws IOException {
+    private void fetchResponseHeader(HTTPInputStream httpInputStream) throws IOException, TimeOutException {
         // Get next line on the stream and split it on spaces
         String[] firstLine = httpInputStream.getNextLine().split(" ");
         // Get the protocol and status values from the line

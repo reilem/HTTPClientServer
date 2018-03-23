@@ -146,6 +146,10 @@ public class HTTPClientHandler implements Runnable {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_418);
             } catch (NoContentFoundException e) {
                 responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_204);
+            } catch (TimeOutException e) {
+                // Break out of the loop
+                System.out.println(Thread.currentThread().getName() + " timed out.");
+                break;
             }
             // Add extra header data such as date and connection state.
             responseHeader.addField(HTTPField.DATE, HTTPTime.getCurrentTime());

@@ -6,9 +6,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 class SimpleServerTests {
 
     private HTTPServer server;
@@ -25,56 +22,56 @@ class SimpleServerTests {
     }
 
     @Test
-    void getTestHTTP1_1() throws IOException, URISyntaxException {
+    void getTestHTTP1_1() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_1, null, null
         );
     }
 
     @Test
-    void putTestHTTP1_1() throws IOException, URISyntaxException {
+    void putTestHTTP1_1() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.PUT, "localhost/test.txt", HTTPProtocol.HTTP_1_1, "PUT TEST\n", null
         );
     }
 
     @Test
-    void postTestHTTP1_1() throws IOException, URISyntaxException {
+    void postTestHTTP1_1() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.POST, "localhost/test.txt", HTTPProtocol.HTTP_1_1, "POST TEST\n", null
         );
     }
 
     @Test
-    void headTestHTTP1_1() throws IOException, URISyntaxException {
+    void headTestHTTP1_1() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.HEAD, "localhost/", HTTPProtocol.HTTP_1_1, null, null
         );
     }
 
     @Test
-    void getTestHTTP1_0() throws IOException, URISyntaxException {
+    void getTestHTTP1_0() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.GET, "localhost/", HTTPProtocol.HTTP_1_0, null, null
         );
     }
 
     @Test
-    void putTestHTTP1_0() throws IOException, URISyntaxException {
+    void putTestHTTP1_0() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.PUT, "localhost/test.txt", HTTPProtocol.HTTP_1_0, "PUT TEST\n", null
         );
     }
 
     @Test
-    void postTestHTTP1_0() throws IOException, URISyntaxException {
+    void postTestHTTP1_0() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.POST, "localhost/test.txt", HTTPProtocol.HTTP_1_0, "POST TEST\n", null
         );
     }
 
     @Test
-    void headTestHTTP1_0() throws IOException, URISyntaxException {
+    void headTestHTTP1_0() throws Exception {
         ServerTestUtil.createAndExecuteClient(
                 HTTPMethod.HEAD, "localhost/", HTTPProtocol.HTTP_1_0, null, null
         );

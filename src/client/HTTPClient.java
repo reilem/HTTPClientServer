@@ -2,6 +2,7 @@ package client;
 
 import common.HTML.HTMLUtil;
 import common.HTTP.exceptions.NoContentFoundException;
+import common.HTTP.exceptions.TimeOutException;
 import common.HTTP.header.HTTPRequestHeader;
 import common.HTTP.header.HTTPResponseHeader;
 import common.HTTP.message.HTTPRequest;
@@ -50,7 +51,7 @@ public class HTTPClient {
      * @throws IOException        If something goes wrong during IO.
      * @throws URISyntaxException If something goes wrong during URI creation (for redirects and image requests).
      */
-    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody body, HashMap<HTTPField, Object> extraHeader) throws IOException, URISyntaxException {
+    public void executeRequest(HTTPMethod method, URI uri, HTTPProtocol protocol, HTTPBody body, HashMap<HTTPField, Object> extraHeader) throws IOException, URISyntaxException, TimeOutException {
         // If socket is null or is closed, print a warning message and return
         if (this.httpSocket == null || this.httpSocket.isClosed()) { System.out.println("Socket is closed."); return; }
 

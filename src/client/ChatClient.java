@@ -3,6 +3,7 @@ package client;
 import common.HTTP.HTTPMethod;
 import common.HTTP.HTTPProtocol;
 import common.HTTP.HTTPUtil;
+import common.HTTP.exceptions.TimeOutException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -37,7 +38,10 @@ public class ChatClient {
             System.err.println("Error occurred while connecting to server. Please check your host and port name are valid.");
             System.out.println("(Add -v as last argument to view verbose error details)");
             if (verbose) e.printStackTrace();
-        } catch (URISyntaxException e) {
+        } catch (TimeOutException e) {
+            System.out.println("Timed out while waiting for a response");
+        }
+        catch (URISyntaxException e) {
             // Catch any URI parsing errors.
             System.err.println("Invalid URI path or host name given in second argument.");
         } catch (IllegalArgumentException e) {

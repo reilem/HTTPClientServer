@@ -3,6 +3,7 @@ package common.HTTP.message;
 import common.HTTP.HTTPBody;
 import common.HTTP.HTTPField;
 import common.HTTP.HTTPUtil;
+import common.HTTP.exceptions.TimeOutException;
 import common.HTTP.header.HTTPHeader;
 import javafx.util.Pair;
 
@@ -17,6 +18,8 @@ import java.util.Arrays;
  */
 public class HTTPInputStream {
 
+    // Maximum number of tries attempt to read a character
+    private static final int MAX_TRIES = 200;
     // Current InputStream from which all data will be read
     private final InputStream inputStream;
 
@@ -84,7 +87,7 @@ public class HTTPInputStream {
      * @param header        The given header that will be filled in.
      * @throws IOException  If something goes wrong during reading.
      */
-    public void fillHeaderFields(HTTPHeader header) throws IOException {
+    public void fillHeaderFields(HTTPHeader header) throws IOException, TimeOutException {
         // Init a nextEntry variable.
         Pair<HTTPField, Object> nextEntry;
         // While next header line is not null
@@ -99,14 +102,25 @@ public class HTTPInputStream {
      * @return              Next line on the input stream as a string.
      * @throws IOException  If something goes wrong during reading.
      */
-    String getNextLine() throws IOException {
+    String getNextLine() throws IOException, TimeOutException {
         // Store the next line in a string builder
         StringBuilder nextLine = new StringBuilder();
-        // While nextLine does not end with CRLF
-        while (!nextLine.toString().endsWith(HTTPUtil.CRLF)) {
-            // Append the next character on the input stream
-            nextLine.append((char)this.inputStream.read());
-        }
+        // Store next character
+        int next;
+        int tries = 0;
+        do {
+            next = this.inputStream.read();
+            if (next == -1) {
+                // Cause increment to catch a possible time out
+                if (tries++ > MAX_TRIES) throw new TimeOutException();
+                else try { Thread.sleep(100); } catch (InterruptedException ignore) {}
+            }
+            else {
+                // Append the next character on the input stream
+                nextLine.append((char)next);
+            }
+        } while (!nextLine.toString().endsWith(HTTPUtil.CRLF));
+        System.out.println("Stopped");
         // Return the nextLine as a string without CRLF.
         return stripCRLF(nextLine.toString());
     }
@@ -116,7 +130,7 @@ public class HTTPInputStream {
      * @return              Next headerLine as a Pair of HTTPField and Object.
      * @throws IOException  If something goes wrong during reading.
      */
-    private Pair<HTTPField, Object> getNextHeaderLine() throws IOException {
+    private Pair<HTTPField, Object> getNextHeaderLine() throws IOException, TimeOutException {
         // Get the next line from the input stream as string.
         String nextLine = this.getNextLine();
         // If the next line is equal to CRLF return null.

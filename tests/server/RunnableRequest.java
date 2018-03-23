@@ -4,8 +4,6 @@ import common.HTTP.HTTPField;
 import common.HTTP.HTTPMethod;
 import common.HTTP.HTTPProtocol;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
 public class RunnableRequest implements Runnable {
@@ -28,7 +26,7 @@ public class RunnableRequest implements Runnable {
     public void run() {
         try {
             ServerTestUtil.createAndExecuteClient(this.method, this.uri, this.protocol, this.body, this.extra);
-        } catch (IOException | URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -8,9 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +28,7 @@ public class ComplexServerTests {
     }
 
     @Test
-    void communicationTest() throws IOException, URISyntaxException {
+    void communicationTest() throws Exception {
         PrintStream stdOut = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));

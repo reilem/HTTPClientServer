@@ -4,6 +4,7 @@ import common.HTTP.HTTPBody;
 import common.HTTP.HTTPMethod;
 import common.HTTP.HTTPProtocol;
 import common.HTTP.HTTPUtil;
+import common.HTTP.exceptions.TimeOutException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,7 +35,7 @@ public class ClientTestUtil {
             URI hostURI = HTTPUtil.makeURI(url);
             HTTPClient client = new HTTPClient(port, hostURI);
             client.executeRequest(method, hostURI, HTTPProtocol.HTTP_1_1, body, null);
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException | URISyntaxException | TimeOutException e) {
             e.printStackTrace();
         }
     }

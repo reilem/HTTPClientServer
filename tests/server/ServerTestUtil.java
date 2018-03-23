@@ -2,6 +2,7 @@ package server;
 
 import client.HTTPClient;
 import common.HTTP.*;
+import common.HTTP.exceptions.TimeOutException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,18 +19,26 @@ abstract class ServerTestUtil {
         t.start();
     }
 
-    static void createAndExecuteClient(HTTPMethod method, String uri, HTTPProtocol protocol, String body, HashMap<HTTPField, Object> extraHeaders) throws IOException, URISyntaxException {
+    static void createAndExecuteClient(HTTPMethod method, String uri, HTTPProtocol protocol, String body, HashMap<HTTPField, Object> extraHeaders) throws Exception {
         URI hostURI = HTTPUtil.makeURI(uri);
         HTTPClient client = new HTTPClient(PORT, hostURI);
-        client.executeRequest(method, hostURI, protocol, body != null ? new HTTPBody(body) : null, extraHeaders);
+        try {
+            client.executeRequest(method, hostURI, protocol, body != null ? new HTTPBody(body) : null, extraHeaders);
+        } catch (URISyntaxException | TimeOutException e) {
+            throw new Exception();
+        }
     }
 
     static HTTPClient createClient(String uri) throws IOException, URISyntaxException {
         return new HTTPClient(PORT, HTTPUtil.makeURI(uri));
     }
 
-    static void executeClientRequest(HTTPClient client, HTTPMethod method, String uri, HTTPProtocol protocol, String body, HashMap<HTTPField, Object> extraHeaders) throws IOException, URISyntaxException {
-        client.executeRequest(method, HTTPUtil.makeURI(uri), protocol, body != null ? new HTTPBody(body) : null, extraHeaders);
+    static void executeClientRequest(HTTPClient client, HTTPMethod method, String uri, HTTPProtocol protocol, String body, HashMap<HTTPField, Object> extraHeaders) throws Exception {
+        try {
+            client.executeRequest(method, HTTPUtil.makeURI(uri), protocol, body != null ? new HTTPBody(body) : null, extraHeaders);
+        } catch (URISyntaxException | TimeOutException e) {
+            throw new Exception();
+        }
     }
 
 }
