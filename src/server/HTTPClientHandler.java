@@ -102,9 +102,9 @@ public class HTTPClientHandler implements Runnable {
                         responseHeader = new HTTPResponseHeader(protocol, HTTPStatus.CODE_304);
                         // Include file last modified date in response
                         responseHeader.addField(HTTPField.LAST_MODIFIED, fileData.lastModified);
-                    } else if (method.equals(HTTPMethod.GET)) {
+                    } else if (method.equals(HTTPMethod.GET) || method.equals(HTTPMethod.HEAD)) {
                         // If file modified and method is GET, pu file data in response body.
-                        responseBody = new HTTPBody(fileData.data);
+                        if (method.equals(HTTPMethod.GET)) responseBody = new HTTPBody(fileData.data);
                         // Include content type and content length in response header
                         responseHeader.addField(HTTPField.CONTENT_TYPE, fileData.contentType);
                         responseHeader.addField(HTTPField.CONTENT_LENGTH, fileData.contentLength);
