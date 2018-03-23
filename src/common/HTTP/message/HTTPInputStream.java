@@ -120,7 +120,6 @@ public class HTTPInputStream {
                 nextLine.append((char)next);
             }
         } while (!nextLine.toString().endsWith(HTTPUtil.CRLF));
-        System.out.println("Stopped");
         // Return the nextLine as a string without CRLF.
         return stripCRLF(nextLine.toString());
     }
